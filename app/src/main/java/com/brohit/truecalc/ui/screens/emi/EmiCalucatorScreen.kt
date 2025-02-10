@@ -43,11 +43,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
+import com.brohit.truecalc.domain.AppState
 import com.brohit.truecalc.ui.components.CustomTextField
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
@@ -127,6 +129,16 @@ fun LoanCalculatorUI(
                         })",
                         placeholder = "Term",
                         modifier = Modifier.weight(1f),
+                        trailingContent = {
+                            Text(
+                                text = if (inputState.isTermInYears) "Year(s)" else "Month(s)",
+                                modifier = Modifier.clickable {
+                                    inputState.isTermInYears = !inputState.isTermInYears
+                                }, color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelSmall,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
@@ -240,19 +252,23 @@ fun LoanCalculatorUI(
                 ResultRow(label = "Total Paid", value = state.totalPaid)
                 ResultRow(label = "Total Interest", value = state.totalInterest)
                 ResultRow(label = "Total Charges", value = state.totalCharges)
+                ResultRow(label = "Effect Interest Rate", value = state.effectiveInterestRate)
             }
 
-            Button(
-                onClick = { },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50)
-                )
-            ) {
-                Text("Save", color = Color.White)
+            if (AppState.isPromotionalBannerShown) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50)
+                    )
+                ) {
+                    Text("Save", color = Color.White)
+                }
             }
+
         }
     }
 }

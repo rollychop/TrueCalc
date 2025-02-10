@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.brohit.truecalc.core.MathUtils.calculateInterestRate
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
 import com.brohit.truecalc.domain.FixedChargesRepository
 import com.brohit.truecalc.domain.model.TextFieldState
@@ -17,7 +18,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -34,9 +34,9 @@ class EmiCalculatorInputState {
         }, maxChar = 15)
     val interestRate = TextFieldState(
         validator = {
-            it.isDigitsOnly() && it.isNotEmpty() && it.length <= 4
+            it.isDigitsOnly() && it.isNotEmpty() && it.length <= 2
         },
-        maxChar = 4
+        maxChar = 2
     )
     var isTermInYears by mutableStateOf(true)
     val term = TextFieldState(
@@ -52,7 +52,8 @@ data class EmiCalculatorState(
     val monthlyPayment: String = "₹0.00",
     val totalPaid: String = "₹0.00",
     val totalInterest: String = "₹0.00",
-    val totalCharges: String = "₹0.00"
+    val totalCharges: String = "₹0.00",
+    val effectiveInterestRate: String = "0.0%"
 )
 
 data class EmiInput(
@@ -63,16 +64,19 @@ data class EmiInput(
     val fixedCharges: List<FixedCharge> = emptyList()
 )
 
+val IndiaEnglishLocale = Locale("en", "IN")
+val INRFormatter: NumberFormat = NumberFormat.getCurrencyInstance(IndiaEnglishLocale)
 
 @HiltViewModel
 class EmiCalculatorViewModel @Inject constructor(
     private val repository: FixedChargesRepository
 ) : ViewModel() {
 
-    private val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+
     val inputState = EmiCalculatorInputState()
 
     val allFixedCharges: StateFlow<List<FixedCharge>> = repository.allFixedCharges
+        .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -87,7 +91,7 @@ class EmiCalculatorViewModel @Inject constructor(
             principal,
             term,
             isTermInYears,
-            repository.allFixedCharges
+            allFixedCharges
         ) { r, p, t, i, fc ->
             EmiInput(
                 principal = p,
@@ -97,7 +101,6 @@ class EmiCalculatorViewModel @Inject constructor(
                 fc
             )
         }
-            .debounce(300)
             .mapLatest { emiInput ->
                 calculateEmi(emiInput)
             }
@@ -108,45 +111,56 @@ class EmiCalculatorViewModel @Inject constructor(
         val fixedCharges = input.fixedCharges
 
         val principal = input.principal.toDoubleOrNull() ?: return EmiCalculatorState()
-        val rate = input.rate.toDoubleOrNull()?.div(12)?.div(100) ?: return EmiCalculatorState()
+        val nominalRate =
+            input.rate.toDoubleOrNull()?.div(12)?.div(100) ?: return EmiCalculatorState()
         val term = input.term.toIntOrNull()?.let { if (input.isTermInYears) it * 12 else it }
             ?: return EmiCalculatorState()
 
+        // Calculate Fixed Charges
         val totalFixedCharges = fixedCharges.sumOf {
             if (it.isPercentage) (it.amount / 100) * principal else it.amount
         }
+
+        // Total Loan Amount (Principal + Fixed Charges)
         val totalLoanAmount = principal + totalFixedCharges
 
-        if (rate == 0.0) {
+        if (nominalRate == 0.0) {
             val monthlyPayment = totalLoanAmount / term
             return EmiCalculatorState(
-                monthlyPayment = monthlyPayment.toFixed2(),
-                totalPaid = totalLoanAmount.toFixed2(),
+                monthlyPayment = monthlyPayment.toFixed2INR(),
+                totalPaid = totalLoanAmount.toFixed2INR(),
                 totalInterest = "₹0.00",
-                totalCharges = totalFixedCharges.toFixed2()
+                totalCharges = totalFixedCharges.toFixed2INR(),
+                effectiveInterestRate = "0.00%"
             )
         }
 
-        // EMI Formula
-        val emi = (totalLoanAmount * rate * (1 + rate).pow(term.toDouble())) /
-                ((1 + rate).pow(term.toDouble()) - 1)
+        // Standard EMI Calculation (Using Total Loan Amount)
+        val emi = (totalLoanAmount * nominalRate * (1 + nominalRate).pow(term.toDouble())) /
+                ((1 + nominalRate).pow(term.toDouble()) - 1)
 
         val totalPaid = emi * term
-        val totalInterest = totalPaid - totalLoanAmount
+        val totalInterest = totalPaid - totalLoanAmount  // Interest paid on (Principal + Charges)
 
+        val eir = calculateInterestRate(principal, term, emi) ?: Double.NaN
         return EmiCalculatorState(
-            monthlyPayment = emi.toFixed2(),
-            totalPaid = totalPaid.toFixed2(),
-            totalInterest = totalInterest.toFixed2(),
-            totalCharges = totalFixedCharges.toFixed2()
+            monthlyPayment = emi.toFixed2INR(),
+            totalPaid = totalPaid.toFixed2INR(),
+            totalInterest = totalInterest.toFixed2INR(),
+            totalCharges = totalFixedCharges.toFixed2INR(),
+            effectiveInterestRate = "${eir.toFixed2()}%"
         )
     }
 
 
-    private fun Double.toFixed2(): String {
+    private fun Double.toFixed2INR(): String {
         if (isNaN()) return "-"
         if (isInfinite()) return "∞"
-        return formatter.format(this)
+        return INRFormatter.format(this)
+    }
+
+    private fun Double.toFixed2(): String {
+        return String.format(IndiaEnglishLocale, "%.2f", this)
     }
 
 

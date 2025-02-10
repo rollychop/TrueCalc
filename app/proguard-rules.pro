@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.brohit.truecalc.data.data_source.local.room.entity.**{*;}
+-keep class com.brohit.truecalc.ui.navigation.Route{*;}

@@ -19,7 +19,7 @@ fun MainAppScreen() {
             val navigationController = rememberNavigationController(navController)
             NavHost(
                 navController = navController,
-                startDestination = Route.MainScreen,
+                startDestination = Route.Calculator,
                 modifier = Modifier.fillMaxSize()
             ) {
                 createNavGraph(navigationController.navigator)
