@@ -136,6 +136,7 @@ fun LoanCalculatorUI(
                             imeAction = ImeAction.Next
                         )
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     CustomTextField(
                         state = inputState.term,
                         label = "EMI Term (${
@@ -159,7 +160,6 @@ fun LoanCalculatorUI(
                             imeAction = ImeAction.Done
                         )
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
 
                 }
             }
