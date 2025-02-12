@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,7 +51,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
 import com.brohit.truecalc.domain.AppState
+import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.ui.components.CustomTextField
+import com.brohit.truecalc.ui.components.EMIPieChart
+import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
@@ -112,7 +116,8 @@ fun LoanCalculatorUI(
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
-                    )
+                    ),
+                    visualTransformation = IndianCurrencyVisualTransformation
                 )
 
                 Row(
@@ -122,8 +127,18 @@ fun LoanCalculatorUI(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomTextField(
+                        inputState.interestRate,
+                        label = "Interest Rate (%)",
+                        modifier = Modifier.weight(1f),
+                        placeholder = "Rate (%)",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        )
+                    )
+                    CustomTextField(
                         state = inputState.term,
-                        label = "Loan Term (${
+                        label = "EMI Term (${
                             if (inputState.isTermInYears) "Years"
                             else "Months"
                         })",
@@ -145,16 +160,7 @@ fun LoanCalculatorUI(
                         )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    CustomTextField(
-                        inputState.interestRate,
-                        label = "Interest Rate (%)",
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Rate (%)",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        )
-                    )
+
                 }
             }
 
@@ -164,7 +170,7 @@ fun LoanCalculatorUI(
                     .background(Color.White, shape = MaterialTheme.shapes.medium)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                var isVisible by remember { mutableStateOf(true) }
+                var isVisible by remember { mutableStateOf(false) }
                 Row(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
@@ -196,7 +202,7 @@ fun LoanCalculatorUI(
                     ) {
                         Row(
                             modifier = Modifier
-                                .clickable { navigator.navigate(Route.Settings) }
+                                .clickable { navigator.navigate(Route.EmiSettings) }
                                 .padding(vertical = 8.dp, horizontal = 8.dp)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -244,15 +250,34 @@ fun LoanCalculatorUI(
                     .padding(16.dp)
             ) {
                 Text(
-                    "Calculations",
+                    text = "Calculations",
                     modifier = Modifier.padding(bottom = 8.dp),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 ResultRow(label = "Monthly Payment", value = state.monthlyPayment)
-                ResultRow(label = "Total Paid", value = state.totalPaid)
+                ResultRow(label = "Total Payment", value = state.totalPaid)
                 ResultRow(label = "Total Interest", value = state.totalInterest)
-                ResultRow(label = "Total Charges", value = state.totalCharges)
-                ResultRow(label = "Effect Interest Rate", value = state.effectiveInterestRate)
+                if (fixedCharges.isNotEmpty()) {
+                    HorizontalDivider()
+                    ResultRow(
+                        label = "Effective Interest Rate",
+                        value = state.effectiveInterestRate
+                    )
+                    ResultRow(label = "Total Charges", value = state.totalCharges)
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EMIPieChart(
+                    state = state,
+                    modifier = Modifier
+                )
             }
 
             if (AppState.isPromotionalBannerShown) {
@@ -270,22 +295,6 @@ fun LoanCalculatorUI(
             }
 
         }
-    }
-}
-
-@Composable
-fun ResultRow(
-    label: String, value: String,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -309,7 +318,7 @@ fun EmiCalculatorScreen(
 @Composable
 fun LoanCalculatorPreview() {
     LoanCalculatorUI(
-        remember { FakeAppNavigator() },
+        FakeAppNavigator,
         listOf(
             FixedCharge(0, "Stamp Duty", 200.0, false)
         ),

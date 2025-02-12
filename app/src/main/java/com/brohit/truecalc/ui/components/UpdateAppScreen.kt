@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,19 +27,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
+import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
 fun UpdateAppScreen(
     onUpdate: () -> Unit,
-    onCloseApp: () -> Unit
+    onCloseApp: () -> Unit,
+    releaseNote: String,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .clickable { }
             .background(MaterialTheme.colorScheme.errorContainer),
         contentAlignment = Alignment.Center
     ) {
@@ -48,7 +52,9 @@ fun UpdateAppScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
@@ -67,9 +73,32 @@ fun UpdateAppScreen(
                     text = "Your app version has expired. Please update to continue using the app.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Release Notes Section
+                if (releaseNote.isNotBlank()) {
+                    Text(
+                        text = "What's New",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color(0xFFF5F5F5), MaterialTheme.shapes.medium)
+                            .padding(12.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        MarkdownText(releaseNote)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 Button(
                     onClick = onUpdate,
                     modifier = Modifier.fillMaxWidth(),
@@ -91,5 +120,14 @@ fun UpdateAppScreen(
 @Preview
 @Composable
 fun UpdateAppScreenPreview() {
-    UpdateAppScreen(onUpdate = {}, onCloseApp = {})
+    UpdateAppScreen(
+        onUpdate = {},
+        onCloseApp = {},
+        releaseNote = """
+            - **Bug Fixes** 🛠️  
+            - Improved UI responsiveness 📱  
+            - New Dark Mode 🌙  
+            - Optimized performance 🚀  
+        """.trimIndent()
+    )
 }

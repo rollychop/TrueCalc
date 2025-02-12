@@ -14,7 +14,7 @@ interface AppNavigator {
     fun navigate(route: Route)
 }
 
-class FakeAppNavigator : AppNavigator {
+object FakeAppNavigator : AppNavigator {
     override fun navigateUp(): Boolean {
         return true
     }

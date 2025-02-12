@@ -10,7 +10,7 @@ object MathUtils {
         var rateGuess =
             (installment * termMonths / principal - 1) / termMonths  // Smart initial guess
         val tolerance = 1e-6
-        val maxIterations = 20  // Limit iterations for real-time performance
+        val maxIterations = 20
 
         for (i in 0 until maxIterations) {
             val presentValue = calculatePresentValue(rateGuess, termMonths, installment)
@@ -24,13 +24,13 @@ object MathUtils {
                 termMonths,
                 installment
             ) - presentValue) / tolerance
-            if (derivative == 0.0) return null  // Avoid division by zero
+            if (derivative == 0.0) return null
 
             rateGuess -= diff / derivative
-            if (rateGuess < 0) return null  // Negative rate is invalid
+            if (rateGuess < 0) return null
         }
 
-        return null  // Failed to converge
+        return null
     }
 
     private fun calculatePresentValue(rate: Double, termMonths: Int, installment: Double): Double {

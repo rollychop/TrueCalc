@@ -1,9 +1,11 @@
 [versions]
 agp = "8.8.0"
+composeCharts = "0.1.1"
+composeMarkdown = "0.5.6"
 kotlinxSerialization = "2.1.10"
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 kotlinxSerializationJson = "1.8.0"
-ksp = "2.1.0-1.0.29"
+ksp = "2.1.10-1.0.29"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -26,6 +28,8 @@ datastorePreferences = "1.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
+compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

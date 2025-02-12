@@ -32,8 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -78,7 +80,7 @@ fun EmiSettingsScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             CustomTextField(
-                                chargeName,
+                                state = chargeName,
                                 label = "Charge Name",
                                 placeholder = "Enter charge name",
                                 modifier = Modifier.fillMaxWidth()
@@ -130,7 +132,8 @@ fun EmiSettingsScreen(
 
                                         val amount = chargeAmount.text.toDoubleOrNull() ?: 0.0
                                         val newCharge = FixedCharge(
-                                            name = chargeName.text,
+                                            name = chargeName.text.trim()
+                                                .capitalize(LocaleList.current),
                                             amount = amount,
                                             isPercentage = isPercentage
                                         )
@@ -139,11 +142,12 @@ fun EmiSettingsScreen(
                                             viewModel.insertFixedCharges(newCharge)
                                         } else {
                                             viewModel.updateFixedCharge(
-                                                editingCharge!!.copy(
-                                                    name = chargeName.text,
+                                                editingCharge?.copy(
+                                                    name = chargeName.text.trim()
+                                                        .capitalize(LocaleList.current),
                                                     amount = amount,
                                                     isPercentage = isPercentage
-                                                )
+                                                ) ?: return@Button
                                             )
                                             editingCharge = null
                                         }

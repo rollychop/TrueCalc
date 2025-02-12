@@ -22,3 +22,4 @@
 
 -keep class com.brohit.truecalc.data.data_source.local.room.entity.**{*;}
 -keep class com.brohit.truecalc.ui.navigation.Route{*;}
+-keep class com.brohit.truecalc.data.data_source.remote.dto.**{*;}

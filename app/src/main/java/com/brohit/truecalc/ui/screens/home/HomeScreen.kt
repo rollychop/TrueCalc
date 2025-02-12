@@ -62,8 +62,8 @@ fun HomeScreen(navigator: AppNavigator) {
     ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Adaptive(150.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(
                 top = 8.dp,
                 bottom = 64.dp,
@@ -197,5 +197,5 @@ fun CalculatorCard(
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    HomeScreen(FakeAppNavigator())
+    HomeScreen(FakeAppNavigator)
 }

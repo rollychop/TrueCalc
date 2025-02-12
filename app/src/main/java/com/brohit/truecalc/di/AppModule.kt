@@ -12,6 +12,7 @@ import androidx.room.Room
 import com.brohit.truecalc.common.Constant
 import com.brohit.truecalc.common.Constant.DATA_STORE_NAME
 import com.brohit.truecalc.data.data_source.local.room.AppDatabase
+import com.brohit.truecalc.data.data_source.remote.GitHubApi
 import com.brohit.truecalc.domain.FixedChargesRepository
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
@@ -136,5 +137,14 @@ object AppModule {
         appDatabase: AppDatabase
     ): FixedChargesRepository = FixedChargesRepository(appDatabase.fixedCharges())
 
+    @Provides
+    fun providesGithubApi(okHttpClient: OkHttpClient): GitHubApi {
+        val retrofit = Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("https://api.github.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create(GitHubApi::class.java)
+    }
 
 }

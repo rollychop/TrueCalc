@@ -8,6 +8,8 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brohit.truecalc.core.MathUtils.calculateInterestRate
+import com.brohit.truecalc.core.TextUtils.toFixed2
+import com.brohit.truecalc.core.TextUtils.toFixed2INR
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
 import com.brohit.truecalc.domain.FixedChargesRepository
 import com.brohit.truecalc.domain.model.TextFieldState
@@ -22,39 +24,53 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.pow
 
 class EmiCalculatorInputState {
-    val principal =
-        TextFieldState(validator = {
-            it.isDigitsOnly() && it.isNotEmpty() && it.length <= 15
-        }, maxChar = 15)
+    val principal = TextFieldState(
+        validator = {
+            it.isDigitsOnly() && it.isNotEmpty() && it.toLongOrNull() in 1..999_999_999_999_999
+        },
+        maxChar = 15
+    )
+
     val interestRate = TextFieldState(
         validator = {
-            it.isDigitsOnly() && it.isNotEmpty() && it.length <= 2
+            val rate = it.toDoubleOrNull()
+            rate != null && rate in 0.01..999.0
         },
-        maxChar = 2
+        maxChar = 6
     )
+
     var isTermInYears by mutableStateOf(true)
+
     val term = TextFieldState(
         validator = {
-            it.isDigitsOnly() && it.isNotEmpty() && it.length <= 3
-        },
-        maxChar = 3
-    )
+            val value = it.toIntOrNull()
+            if (value == null || value <= 0) return@TextFieldState false
 
+            if (isTermInYears) value in 1..999
+            else value in 1..9999
+        },
+        maxChar = 4
+    )
 }
 
+
 data class EmiCalculatorState(
-    val monthlyPayment: String = "₹0.00",
-    val totalPaid: String = "₹0.00",
-    val totalInterest: String = "₹0.00",
-    val totalCharges: String = "₹0.00",
-    val effectiveInterestRate: String = "0.0%"
-)
+    val mp: Double = 0.0,
+    val tp: Double = 0.0,
+    val ti: Double = 0.0,
+    val tc: Double = 0.0,
+    val eir: Double = 0.0,
+) {
+    val monthlyPayment: String = mp.toFixed2INR()
+    val totalPaid: String = tp.toFixed2INR()
+    val totalInterest: String = ti.toFixed2INR()
+    val totalCharges: String = tc.toFixed2INR()
+    val effectiveInterestRate: String = eir.toFixed2() + "%"
+}
 
 data class EmiInput(
     val principal: String,
@@ -64,8 +80,6 @@ data class EmiInput(
     val fixedCharges: List<FixedCharge> = emptyList()
 )
 
-val IndiaEnglishLocale = Locale("en", "IN")
-val INRFormatter: NumberFormat = NumberFormat.getCurrencyInstance(IndiaEnglishLocale)
 
 @HiltViewModel
 class EmiCalculatorViewModel @Inject constructor(
@@ -127,11 +141,11 @@ class EmiCalculatorViewModel @Inject constructor(
         if (nominalRate == 0.0) {
             val monthlyPayment = totalLoanAmount / term
             return EmiCalculatorState(
-                monthlyPayment = monthlyPayment.toFixed2INR(),
-                totalPaid = totalLoanAmount.toFixed2INR(),
-                totalInterest = "₹0.00",
-                totalCharges = totalFixedCharges.toFixed2INR(),
-                effectiveInterestRate = "0.00%"
+                mp = monthlyPayment,
+                tp = totalLoanAmount,
+                ti = 0.0,
+                tc = totalFixedCharges,
+                eir = 0.0
             )
         }
 
@@ -144,23 +158,12 @@ class EmiCalculatorViewModel @Inject constructor(
 
         val eir = calculateInterestRate(principal, term, emi) ?: Double.NaN
         return EmiCalculatorState(
-            monthlyPayment = emi.toFixed2INR(),
-            totalPaid = totalPaid.toFixed2INR(),
-            totalInterest = totalInterest.toFixed2INR(),
-            totalCharges = totalFixedCharges.toFixed2INR(),
-            effectiveInterestRate = "${eir.toFixed2()}%"
+            mp = emi,
+            tp = totalPaid,
+            ti = totalInterest,
+            tc = totalFixedCharges,
+            eir = eir
         )
-    }
-
-
-    private fun Double.toFixed2INR(): String {
-        if (isNaN()) return "-"
-        if (isInfinite()) return "∞"
-        return INRFormatter.format(this)
-    }
-
-    private fun Double.toFixed2(): String {
-        return String.format(IndiaEnglishLocale, "%.2f", this)
     }
 
 

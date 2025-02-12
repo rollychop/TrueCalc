@@ -15,8 +15,8 @@ android {
         applicationId = "com.brohit.truecalc"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "0.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
@@ -88,6 +89,10 @@ dependencies {
 
     //coil
     implementation(libs.coil)
+
+    //charts
+    implementation(libs.compose.charts)
+    implementation(libs.compose.markdown)
 
 
 

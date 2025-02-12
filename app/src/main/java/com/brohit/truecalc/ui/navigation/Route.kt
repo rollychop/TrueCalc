@@ -9,8 +9,11 @@ sealed class Route {
 
 
     @Serializable
-    data object Calculator : Route()
+    data object EmiCalculator : Route()
 
     @Serializable
-    data object Settings : Route()
+    data object EmiSettings : Route()
+
+    @Serializable
+    data object CompoundInterestCalculator : Route()
 }
