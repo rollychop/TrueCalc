@@ -117,7 +117,7 @@ fun CompoundInterestUI(
                         label = "Time Period (${if (inputState.isTimeInYears) "Years" else "Months"})",
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
+                            imeAction = ImeAction.Done
                         ),
                         trailingContent = {
                             Text(

@@ -133,7 +133,7 @@ fun LoanCalculatorUI(
                         placeholder = "Rate (%)",
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
+                            imeAction = ImeAction.Next
                         )
                     )
                     CustomTextField(
@@ -156,7 +156,7 @@ fun LoanCalculatorUI(
                         },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
+                            imeAction = ImeAction.Done
                         )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
