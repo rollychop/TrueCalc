@@ -25,9 +25,11 @@ dagger-hilt = "2.55"
 coroutines-core = "1.9.0"
 navigationCompose = "2.8.6"
 datastorePreferences = "1.1.2"
+uiTextGoogleFonts = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

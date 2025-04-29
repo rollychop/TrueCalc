@@ -116,6 +116,58 @@ fun HomeScreen(navigator: AppNavigator) {
                         modifier = Modifier.aspectRatio(1f)
                     )
                 }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "ℹ️ About TrueCalc",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = """
+TrueCalc is your friendly financial buddy 🧮💸! Whether you're buying a new car 🚗, saving for a dream home 🏡, or planning your investments 📈 — TrueCalc helps you calculate with confidence!
+
+✨ Current features:
+• EMI Calculator 📆
+• Compound Interest Calculator 📊
+
+🛠️ Coming soon:
+• Loan Comparison 🔍
+• SIP & Investment tools 💹
+• Credit card interest analysis 💳
+• More calculators to make your financial life easy!
+
+""".trimIndent(),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "💡 Pro Tips!",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = """
+✅ Use the EMI calculator to estimate your monthly payments before taking a loan.
+
+✅ Switch between months and years for more accurate compound interest results.
+
+✅ Tap on different cards to explore calculators — more are coming soon!
+
+✅ Turn on updates to get notified when we launch new features 🚀
+
+Made with ❤️ in India 🇮🇳
+""".trimIndent(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
         }
     }
