@@ -15,5 +15,11 @@ sealed class Route {
     data object EmiSettings : Route()
 
     @Serializable
-    data object CompoundInterestCalculator : Route()
+    data class CompoundInterestCalculator(val calculationType: String) : Route()
+
+
+    @Serializable
+    data object RecurringDepositCalculator : Route()
+
+
 }

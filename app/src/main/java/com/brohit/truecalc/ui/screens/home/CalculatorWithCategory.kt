@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Functions
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LineWeight
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Savings
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Timeline
 import com.brohit.truecalc.ui.navigation.Route
+import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
 
 data class CalculatorWithCategory(
     val category: String,
@@ -163,17 +165,35 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
         category = "Financial",
         calculators = listOf(
             Calculator(
-                "EMI Calculator",
-                "Calculate EMI payments",
-                Route.EmiCalculator,
-                Icons.Filled.AttachMoney
+                name = "EMI Calculator",
+                description = "Calculate EMI payments",
+                route = Route.EmiCalculator,
+                icon = Icons.Filled.AttachMoney
             ),
             Calculator(
-                "Compound Interest",
-                "Calculates compound interest",
-                Route.CompoundInterestCalculator,
-                Icons.Filled.MonetizationOn
-            )
+                name = "Compound Interest",
+                description = "Calculates compound interest",
+                route = Route.CompoundInterestCalculator(calculationType = CalculationType.COMPOUND),
+                icon = Icons.Filled.MonetizationOn
+            ),
+            Calculator(
+                name = "Simple Interest",
+                description = "Calculates simple interest",
+                route = Route.CompoundInterestCalculator(calculationType = CalculationType.SIMPLE),
+                icon = Icons.Filled.Money
+            ),
+            Calculator(
+                name = "Fixed Deposit",
+                description = "Calculates fixed deposits",
+                route = Route.CompoundInterestCalculator(calculationType = CalculationType.FIXED),
+                icon = Icons.Filled.AttachMoney
+            ),
+            Calculator(
+                name = "Recurring Deposit",
+                description = "Calculates recurring interest",
+                route = Route.RecurringDepositCalculator,
+                icon = Icons.Filled.Timeline
+            ),
         )
     ),
 )

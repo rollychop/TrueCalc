@@ -1,13 +1,10 @@
-package com.brohit.truecalc.ui.screens.compund_interest
+package com.brohit.truecalc.ui.screens.recurring_deposit
 
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.InvestmentResultState
-import com.brohit.truecalc.ui.navigation.Route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,16 +17,11 @@ import kotlin.math.pow
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CompoundInterestViewModel(
-    savedStateHandle: SavedStateHandle
-) : ViewModel() {
-
-    private val calculationType: String =
-        savedStateHandle.toRoute<Route.CompoundInterestCalculator>().calculationType
-    val inputState = CompoundInterestInputState(calculationType)
+class RecurringDepositViewModel : ViewModel() {
+    val inputState = RecurringDepositInputState()
 
     private val stateFlow: StateFlow<InvestmentResultState> = kotlin.run {
-        val type = snapshotFlow { inputState.calculationType }
+        val interval = snapshotFlow { inputState.recurringInterval }
         val rate = snapshotFlow { inputState.interestRate.text }
         val principal = snapshotFlow { inputState.principal.text }
         val time = snapshotFlow { inputState.time.text }
@@ -37,10 +29,10 @@ class CompoundInterestViewModel(
         val compoundingFrequency = snapshotFlow { inputState.compoundingFrequency }
 
         combine(
-            type, principal, rate, time, isTimeInYears, compoundingFrequency
+            interval, principal, rate, time, isTimeInYears, compoundingFrequency
         ) { ar ->
-            CompoundInterestInput(
-                type = ar[0] as String,
+            RecurringDepositInput(
+                interval = ar[0] as RecurringInterval,
                 principal = ar[1] as String,
                 rate = ar[2] as String,
                 time = ar[3] as String,
@@ -48,41 +40,44 @@ class CompoundInterestViewModel(
                 compoundingFrequency = ar[5] as CompoundingFrequency
             )
         }.mapLatest { input ->
-            calculateCompoundInterest(input)
+            calculateRecurringDeposit(input)
         }
             .flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), InvestmentResultState())
     val state: StateFlow<InvestmentResultState> = stateFlow
 
-    private fun calculateCompoundInterest(input: CompoundInterestInput): InvestmentResultState {
+    private fun calculateRecurringDeposit(input: RecurringDepositInput): InvestmentResultState {
+        val interval = input.interval
         val principal = input.principal.toDoubleOrNull() ?: return InvestmentResultState()
         val rate = input.rate.toDoubleOrNull()?.div(100) ?: return InvestmentResultState()
         val timeInput = input.time.toDoubleOrNull() ?: return InvestmentResultState()
-        val frequency = input.compoundingFrequency.timesPerYear
+        val n = input.compoundingFrequency.timesPerYear
 
-        // Convert time to years if it's given in months
+        // Convert total time in years
         val timeInYears = if (input.isTimeInYears) timeInput else timeInput / 12
 
-        val amount: Double
-        val interest: Double
-        when (input.type) {
-            CalculationType.COMPOUND, CalculationType.FIXED -> {
-                amount = principal * (1 + rate / frequency).pow(frequency * timeInYears)
-                interest = amount - principal
-            }
+        val ppy =
+            interval.paymentsPerYear // payments per year based on user interval (monthly, weekly, etc.)
 
-            CalculationType.SIMPLE -> {
-                interest = principal * rate * timeInYears
-                amount = interest + principal
-            }
+        // Total number of installments
+        val totalInstallments = (timeInYears * ppy).toInt()
 
-            else -> return InvestmentResultState()
-        }
+        val r = rate / n // rate per compounding period
+
+        // Effective interest calculation
+        val onePlusR = 1 + r
+        val factor = onePlusR.pow(n * timeInYears)
+        val top = factor - 1
+        val bottom = onePlusR.pow(-1.0 * n / ppy)
+
+        val maturityAmount = principal * (top / (1 - bottom))
+        val totalInvested = principal * totalInstallments
+        val interest = maturityAmount - totalInvested
 
         return InvestmentResultState(
-            amount = amount,
+            amount = maturityAmount,
             interest = interest,
-            principal = principal
+            principal = totalInvested
         )
     }
 

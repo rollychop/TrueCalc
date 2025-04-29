@@ -1,4 +1,4 @@
-package com.brohit.truecalc.ui.screens.compund_interest
+package com.brohit.truecalc.ui.screens.recurring_deposit
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -19,9 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -52,15 +49,15 @@ import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
 import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
+import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
 import com.brohit.truecalc.ui.theme.Blue
 
-
 @Composable
-fun CompoundInterestScreen(
+fun RecurringDepositScreen(
     navigator: AppNavigator,
-    viewModel: CompoundInterestViewModel = hiltViewModel()
+    viewModel: RecurringDepositViewModel = hiltViewModel()
 ) {
-    CompoundInterestUI(
+    RecurringDepositUI(
         navigator = navigator,
         inputState = viewModel.inputState,
         state = viewModel.state.collectAsStateWithLifecycle().value
@@ -68,12 +65,13 @@ fun CompoundInterestScreen(
 }
 
 @Composable
-fun CompoundInterestUI(
+fun RecurringDepositUI(
     navigator: AppNavigator,
-    inputState: CompoundInterestInputState,
+    inputState: RecurringDepositInputState,
     state: InvestmentResultState
 ) {
     Scaffold { innerPadding ->
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -85,47 +83,88 @@ fun CompoundInterestUI(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = inputState.calculationType,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    InvestmentToggleButton(inputState)
-                }
+                Text(
+                    text = "Recurring Deposit",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
                 IconButton(onClick = { navigator.navigateUp() }) {
                     Icon(Icons.Filled.Close, contentDescription = "Close")
                 }
             }
+            // Installment Frequency
+            var isIntervalVisible by remember { mutableStateOf(false) }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .padding(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clickable { isIntervalVisible = !isIntervalVisible }
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Installment Frequency",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        inputState.recurringInterval.label,
+                        color = Blue
+                    )
+                }
+                AnimatedVisibility(isIntervalVisible) {
+                    Column {
+                        RecurringInterval.entries.forEach { interval ->
+                            Text(
+                                text = interval.label,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        inputState.recurringInterval = interval
+                                        isIntervalVisible = false
+                                    }
+                                    .padding(8.dp),
+                                color = if (interval == inputState.recurringInterval)
+                                    MaterialTheme.colorScheme.primary
+                                else LocalContentColor.current
+                            )
+                        }
+                    }
+                }
+            }
 
+            // Input Fields
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp)
             ) {
+
                 CustomTextField(
                     state = inputState.principal,
-                    label = "PRINCIPAL AMOUNT (₹)",
+                    label = "Installment Amount (₹)",
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
                     visualTransformation = IndianCurrencyVisualTransformation,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Enter Principal"
+                    placeholder = "Enter installment"
                 )
                 Spacer(Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CustomTextField(
                         state = inputState.interestRate,
                         label = "Annual Interest Rate (%)",
@@ -148,7 +187,8 @@ fun CompoundInterestUI(
                                 text = if (inputState.isTimeInYears) "Year(s)" else "Month(s)",
                                 modifier = Modifier.clickable {
                                     inputState.isTimeInYears = !inputState.isTimeInYears
-                                }, color = MaterialTheme.colorScheme.primary,
+                                },
+                                color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.labelSmall,
                                 textDecoration = TextDecoration.Underline
                             )
@@ -159,56 +199,52 @@ fun CompoundInterestUI(
                 }
             }
 
-            if (inputState.calculationType != CalculationType.SIMPLE) {
-                Column(
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .padding(8.dp)
+            ) {
+                var isVisible by remember { mutableStateOf(false) }
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, shape = MaterialTheme.shapes.medium)
-                        .padding(8.dp)
+                        .clickable { isVisible = !isVisible }
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var isVisible by remember { mutableStateOf(false) }
-                    Row(
-                        modifier = Modifier
-                            .clickable { isVisible = !isVisible }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = when (inputState.calculationType) {
-                                CalculationType.FIXED -> "Interest Payout Frequency"
-                                CalculationType.COMPOUND -> "Compounding Frequency"
-                                else -> ""
-                            },
-                            modifier = Modifier.weight(1f),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            inputState.compoundingFrequency.getLabelFor(inputState.calculationType),
-                            color = Blue
-                        )
-                    }
-                    AnimatedVisibility(isVisible) {
-                        Column {
-                            CompoundingFrequency.entries.forEach { freq ->
-                                Text(
-                                    text = freq.getLabelFor(inputState.calculationType),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            inputState.compoundingFrequency = freq
-                                            isVisible = false
-                                        }
-                                        .padding(8.dp),
-                                    color = if (freq == inputState.compoundingFrequency)
-                                        MaterialTheme.colorScheme.primary
-                                    else LocalContentColor.current
-                                )
-                            }
+                    Text(
+                        text = "Interest Payout Frequency",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        inputState.compoundingFrequency.getLabelFor(CalculationType.FIXED),
+                        color = Blue
+                    )
+                }
+                AnimatedVisibility(isVisible) {
+                    Column {
+                        CompoundingFrequency.entries.forEach { freq ->
+                            Text(
+                                text = freq.getLabelFor(CalculationType.FIXED),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        inputState.compoundingFrequency = freq
+                                        isVisible = false
+                                    }
+                                    .padding(8.dp),
+                                color = if (freq == inputState.compoundingFrequency)
+                                    MaterialTheme.colorScheme.primary
+                                else LocalContentColor.current
+                            )
                         }
                     }
                 }
             }
 
+            // Results
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -222,6 +258,7 @@ fun CompoundInterestUI(
                 ResultRow("Total Invested", state.totalInvestment)
             }
 
+            // Chart
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -233,7 +270,7 @@ fun CompoundInterestUI(
                     totalAmount = state.amount,
                     interest = state.interest,
                     principal = state.principal,
-                    title = "Breakdown of ${inputState.calculationType}",
+                    title = "Breakdown of Recurring Deposit",
                     modifier = Modifier
                 )
             }
@@ -241,46 +278,12 @@ fun CompoundInterestUI(
     }
 }
 
-@Composable
-private fun InvestmentToggleButton(
-    inputState: CompoundInterestInputState,
-) {
-    val expanded = remember { mutableStateOf(false) }
-    val calculationType = inputState.calculationType
-    val allTypes = CalculationType.entries
-
-    Box {
-        IconButton(onClick = { expanded.value = true }) {
-            Icon(
-                imageVector = Icons.Filled.SwapVert,
-                contentDescription = "Change calculation"
-            )
-        }
-        DropdownMenu(
-            expanded = expanded.value,
-            onDismissRequest = { expanded.value = false }
-        ) {
-            allTypes.forEach { type ->
-                DropdownMenuItem(
-                    text = { Text(type) },
-                    onClick = {
-                        inputState.onCalculationTypeChange(type)
-                        expanded.value = false
-                    },
-                    enabled = calculationType != type
-                )
-            }
-        }
-    }
-}
-
-
 @Preview(showBackground = true)
 @Composable
-private fun CompoundInterestScreenPreview() {
-    CompoundInterestUI(
+private fun RecurringDepositScreenPreview() {
+    RecurringDepositUI(
         navigator = FakeAppNavigator,
-        inputState = CompoundInterestInputState(),
+        inputState = RecurringDepositInputState(),
         state = InvestmentResultState()
     )
 }

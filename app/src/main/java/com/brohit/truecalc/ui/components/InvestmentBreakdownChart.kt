@@ -26,7 +26,7 @@ import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.Pie
 
 @Composable
-fun CompoundInterestPieChart(
+fun InvestmentBreakdownChart(
     totalAmount: Double,
     interest: Double,
     principal: Double,
