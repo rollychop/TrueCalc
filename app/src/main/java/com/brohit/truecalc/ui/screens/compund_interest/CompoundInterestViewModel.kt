@@ -99,10 +99,13 @@ class CompoundInterestViewModel : ViewModel() {
     private fun calculateCompoundInterest(input: CompoundInterestInput): CompoundInterestState {
         val principal = input.principal.toDoubleOrNull() ?: return CompoundInterestState()
         val rate = input.rate.toDoubleOrNull()?.div(100) ?: return CompoundInterestState()
-        val time = input.time.toDoubleOrNull() ?: return CompoundInterestState()
+        val timeInput = input.time.toDoubleOrNull() ?: return CompoundInterestState()
         val frequency = input.compoundingFrequency.timesPerYear
 
-        val amount = principal * (1 + rate / frequency).pow(frequency * time)
+        // Convert time to years if it's given in months
+        val timeInYears = if (input.isTimeInYears) timeInput else timeInput / 12
+
+        val amount = principal * (1 + rate / frequency).pow(frequency * timeInYears)
         val interest = amount - principal
 
         return CompoundInterestState(
@@ -111,6 +114,7 @@ class CompoundInterestViewModel : ViewModel() {
             principal = principal
         )
     }
+
 
 }
 
