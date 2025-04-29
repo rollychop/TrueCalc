@@ -1,6 +1,9 @@
 package com.brohit.truecalc.ui.screens.compund_interest
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -249,13 +253,36 @@ private fun InvestmentToggleButton(
     val calculationType = inputState.calculationType
     val allTypes = CalculationType.entries
 
-    Box {
+    // Animate scale to highlight the button
+    val scale by animateFloatAsState(
+        targetValue = if (expanded.value) 1.2f else 1f,
+        animationSpec = tween(durationMillis = 200),
+        label = "ScaleAnimation"
+    )
+
+    // Optional: subtle background color highlight when expanded
+    val backgroundColor by animateColorAsState(
+        targetValue = if (expanded.value) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent,
+        animationSpec = tween(durationMillis = 200),
+        label = "BackgroundColorAnimation"
+    )
+
+    Box(
+        modifier = Modifier
+            .background(backgroundColor, shape = MaterialTheme.shapes.small)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+    ) {
         IconButton(onClick = { expanded.value = true }) {
             Icon(
                 imageVector = Icons.Filled.SwapVert,
-                contentDescription = "Change calculation"
+                contentDescription = "Change calculation",
+                tint = MaterialTheme.colorScheme.primary
             )
         }
+
         DropdownMenu(
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false }
