@@ -2,6 +2,7 @@ package com.brohit.truecalc.ui.screens.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -17,19 +18,30 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.brohit.truecalc.domain.AppState
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
+import com.brohit.truecalc.ui.navigation.Route
+import com.brohit.truecalc.ui.utils.MoreIcon
+import com.brohit.truecalc.ui.utils.toIntent
 
 val cardColors = listOf(
     Color(0xFFFFCDD2), Color(0xFFC8E6C9), Color(0xFFBBDEFB),
@@ -56,6 +71,16 @@ fun HomeScreen(navigator: AppNavigator) {
                         "True Calculator",
                         fontWeight = FontWeight.Bold
                     )
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navigator.navigate(Route.SearchScreen)
+                        }
+                    ) {
+                        Icon(Icons.Default.Search, "search")
+                    }
+                    MoreMenuIconButton(navigator)
                 }
             )
         }
@@ -74,25 +99,27 @@ fun HomeScreen(navigator: AppNavigator) {
         ) {
             if (AppState.isPromotionalBannerShown) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(
-                        text = "Promotions",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .padding(top = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        items(5) { index ->
-                            BannerCard(
-                                title = "Promo $index",
-                                description = "Special offer!",
-                                backgroundColor = cardColors[index % cardColors.size]
-                            )
+                    Column {
+                        Text(
+                            text = "Promotions",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .padding(top = 8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp)
+                        ) {
+                            items(5) { index ->
+                                BannerCard(
+                                    title = "Promo $index",
+                                    description = "Special offer!",
+                                    backgroundColor = cardColors[index % cardColors.size]
+                                )
+                            }
                         }
                     }
 
@@ -116,20 +143,21 @@ fun HomeScreen(navigator: AppNavigator) {
                         modifier = Modifier.aspectRatio(1f)
                     )
                 }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "ℹ️ About TrueCalc",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = """
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "ℹ️ About TrueCalc",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = """
 TrueCalc is your friendly financial buddy 🧮💸! Whether you're buying a new car 🚗, saving for a dream home 🏡, or planning your investments 📈 — TrueCalc helps you calculate with confidence!
 
 ✨ Current features:
@@ -143,17 +171,17 @@ TrueCalc is your friendly financial buddy 🧮💸! Whether you're buying a new 
 • More calculators to make your financial life easy!
 
 """.trimIndent(),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "💡 Pro Tips!",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = """
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "💡 Pro Tips!",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = """
 ✅ Use the EMI calculator to estimate your monthly payments before taking a loan.
 
 ✅ Switch between months and years for more accurate compound interest results.
@@ -164,10 +192,42 @@ TrueCalc is your friendly financial buddy 🧮💸! Whether you're buying a new 
 
 Made with ❤️ in India 🇮🇳
 """.trimIndent(),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun MoreMenuIconButton(navigator: AppNavigator) {
+    var isShown by remember { mutableStateOf(false) }
+    val allTypes = MoreIcon.entries
+    val context = LocalContext.current
+    Box(
+        contentAlignment = Alignment.Center
+    ) {
+        IconButton(
+            onClick = {
+                isShown = true
+            }
+        ) {
+            Icon(Icons.Default.MoreVert, "more")
+        }
+        DropdownMenu(
+            expanded = isShown,
+            onDismissRequest = { isShown = false }
+        ) {
+            allTypes.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(type.label) },
+                    onClick = {
+                        context.startActivity(type.toIntent(context))
+                        isShown = false
+                    },
+                )
             }
         }
     }

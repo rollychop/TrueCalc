@@ -280,7 +280,7 @@ fun LoanCalculatorUI(
                 )
             }
 
-            if (AppState.isPromotionalBannerShown) {
+            if (AppState.isEmiSaveButtonEnabled) {
                 Button(
                     onClick = { },
                     modifier = Modifier

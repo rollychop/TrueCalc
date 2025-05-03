@@ -196,4 +196,27 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             ),
         )
     ),
+    CalculatorWithCategory(
+        category = "Health & Fitness",
+        calculators = listOf(
+            Calculator(
+                "BMI Calculator",
+                "Calculate your Body Mass Index",
+                Route.BmiCalculator,
+                Icons.Filled.Accessibility
+            ),
+            Calculator(
+                "Calorie Calculator",
+                "Estimate daily calorie needs",
+                Route.CalorieCalculator,
+                Icons.Filled.Restaurant
+            ),
+            Calculator(
+                "Ideal Weight Calculator",
+                "Calculate your ideal weight",
+                Route.IdealWeightCalculator,
+                Icons.Filled.Scale
+            )
+        )
+    ),
 )

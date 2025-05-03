@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -15,8 +16,8 @@ android {
         applicationId = "com.brohit.truecalc"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.0.2"
+        versionCode = 3
+        versionName = "0.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,6 +59,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //
+    implementation(libs.material)
+
     //icons
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -69,7 +73,15 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
     ksp(libs.androidx.room.compiler)
+
+    //work manager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
 
     implementation(libs.kotlinx.serialization.json)
 
@@ -97,6 +109,9 @@ dependencies {
 
     //fonts
     implementation(libs.androidx.ui.text.google.fonts)
+
+    //in app update
+    implementation(libs.app.update.ktx)
 
 
 

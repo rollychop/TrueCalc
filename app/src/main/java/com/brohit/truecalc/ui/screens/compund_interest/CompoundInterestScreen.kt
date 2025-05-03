@@ -1,6 +1,5 @@
 package com.brohit.truecalc.ui.screens.compund_interest
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -27,7 +26,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,11 +49,11 @@ import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.components.CustomTextField
+import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
 import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
-import com.brohit.truecalc.ui.theme.Blue
 
 
 @Composable
@@ -164,53 +161,20 @@ fun CompoundInterestUI(
             }
 
             if (inputState.calculationType != CalculationType.SIMPLE) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, shape = MaterialTheme.shapes.medium)
-                        .padding(8.dp)
-                ) {
-                    var isVisible by remember { mutableStateOf(false) }
-                    Row(
-                        modifier = Modifier
-                            .clickable { isVisible = !isVisible }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = when (inputState.calculationType) {
-                                CalculationType.FIXED -> "Interest Payout Frequency"
-                                CalculationType.COMPOUND -> "Compounding Frequency"
-                                else -> ""
-                            },
-                            modifier = Modifier.weight(1f),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            inputState.compoundingFrequency.getLabelFor(inputState.calculationType),
-                            color = Blue
-                        )
-                    }
-                    AnimatedVisibility(isVisible) {
-                        Column {
-                            CompoundingFrequency.entries.forEach { freq ->
-                                Text(
-                                    text = freq.getLabelFor(inputState.calculationType),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            inputState.compoundingFrequency = freq
-                                            isVisible = false
-                                        }
-                                        .padding(8.dp),
-                                    color = if (freq == inputState.compoundingFrequency)
-                                        MaterialTheme.colorScheme.primary
-                                    else LocalContentColor.current
-                                )
-                            }
-                        }
-                    }
-                }
+                ExpandableSelector(
+                    title = when (inputState.calculationType) {
+                        CalculationType.FIXED -> "Interest Payout Frequency"
+                        CalculationType.COMPOUND -> "Compounding Frequency"
+                        else -> ""
+                    },
+                    options = CompoundingFrequency.entries,
+                    selectedOption = inputState.compoundingFrequency,
+                    onOptionSelected = {
+                        inputState.compoundingFrequency = it
+                    },
+                    optionTitleSelector = { it.getLabelFor(inputState.calculationType) },
+                    containerColor = Color.White
+                )
             }
 
             Column(
@@ -262,7 +226,9 @@ private fun InvestmentToggleButton(
 
     // Optional: subtle background color highlight when expanded
     val backgroundColor by animateColorAsState(
-        targetValue = if (expanded.value) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent,
+        targetValue = if (expanded.value)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        else Color.Transparent,
         animationSpec = tween(durationMillis = 200),
         label = "BackgroundColorAnimation"
     )

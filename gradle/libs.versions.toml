@@ -1,7 +1,9 @@
 [versions]
 agp = "8.8.0"
+appUpdateKtx = "2.1.0"
 composeCharts = "0.1.1"
 composeMarkdown = "0.5.6"
+firebaseBom = "33.13.0"
 kotlinxSerialization = "2.1.10"
 kotlin = "2.1.10"
 kotlinxSerializationJson = "1.8.0"
@@ -15,6 +17,7 @@ activityCompose = "1.10.0"
 composeBom = "2025.01.01"
 
 
+material = "1.12.0"
 splash-version = "1.0.1"
 room-version = "2.6.1"
 retrofit-version = "2.11.0"
@@ -26,10 +29,16 @@ coroutines-core = "1.9.0"
 navigationCompose = "2.8.6"
 datastorePreferences = "1.1.2"
 uiTextGoogleFonts = "1.8.0"
+googleGmsGoogleServices = "4.4.2"
+workRuntimeKtx = "2.10.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidx-hilt" }
+
+app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdateKtx" }
 compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -47,6 +56,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 splash-api = { group = "androidx.core", name = "core-splashscreen", version.ref = "splash-version" }
 
 
@@ -76,6 +86,11 @@ androidx-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-co
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines-core" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines-core" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+#
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -83,4 +98,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerialization" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

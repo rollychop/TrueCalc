@@ -7,4 +7,7 @@ import androidx.compose.runtime.setValue
 object AppState {
     var isPromotionalBannerShown by mutableStateOf(false)
         private set
+
+    var isEmiSaveButtonEnabled by mutableStateOf(false)
+        private set
 }

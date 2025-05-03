@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.brohit.truecalc" />
+                  <option name="mobileSdkAppId" value="1:329724541009:android:459924b3780f31cd912070" />
+                  <option name="projectId" value="tally-c2092" />
+                  <option name="projectNumber" value="329724541009" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

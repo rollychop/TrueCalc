@@ -39,8 +39,8 @@ fun CustomTextField(
             text = label,
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF5D5D5D),
-            modifier = Modifier.padding(bottom = 4.dp),
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 4.dp)
         )
         val textStyle = MaterialTheme.typography.headlineSmall
             .copy(fontWeight = FontWeight.Bold)
@@ -75,7 +75,8 @@ fun CustomTextField(
                                 text = placeholder,
                                 style = textStyle
                                     .copy(color = LocalContentColor.current.copy(.75f)),
-                                maxLines = maxLines
+                                maxLines = maxLines,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                         }
                         innerTextField()

@@ -45,6 +45,7 @@ import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.components.CustomTextField
+import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
 import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
@@ -198,51 +199,16 @@ fun RecurringDepositUI(
                     )
                 }
             }
-
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .padding(8.dp)
-            ) {
-                var isVisible by remember { mutableStateOf(false) }
-                Row(
-                    modifier = Modifier
-                        .clickable { isVisible = !isVisible }
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Interest Payout Frequency",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        inputState.compoundingFrequency.getLabelFor(CalculationType.FIXED),
-                        color = Blue
-                    )
-                }
-                AnimatedVisibility(isVisible) {
-                    Column {
-                        CompoundingFrequency.entries.forEach { freq ->
-                            Text(
-                                text = freq.getLabelFor(CalculationType.FIXED),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        inputState.compoundingFrequency = freq
-                                        isVisible = false
-                                    }
-                                    .padding(8.dp),
-                                color = if (freq == inputState.compoundingFrequency)
-                                    MaterialTheme.colorScheme.primary
-                                else LocalContentColor.current
-                            )
-                        }
-                    }
-                }
-            }
+            ExpandableSelector(
+                title = "Interest Payout Frequency",
+                options = CompoundingFrequency.entries,
+                selectedOption = inputState.compoundingFrequency,
+                onOptionSelected = {
+                    inputState.compoundingFrequency = it
+                },
+                optionTitleSelector = { it.getLabelFor(CalculationType.FIXED) },
+                containerColor = Color.White
+            )
 
             // Results
             Column(

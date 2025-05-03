@@ -11,9 +11,11 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.brohit.truecalc.common.Constant
 import com.brohit.truecalc.common.Constant.DATA_STORE_NAME
+import com.brohit.truecalc.data.SearchRepositoryImpl
 import com.brohit.truecalc.data.data_source.local.room.AppDatabase
 import com.brohit.truecalc.data.data_source.remote.GitHubApi
 import com.brohit.truecalc.domain.FixedChargesRepository
+import com.brohit.truecalc.domain.SearchRepository
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -136,6 +138,9 @@ object AppModule {
     fun providesFixedChargesRepository(
         appDatabase: AppDatabase
     ): FixedChargesRepository = FixedChargesRepository(appDatabase.fixedCharges())
+
+    @Provides
+    fun providesSearchRepository(): SearchRepository = SearchRepositoryImpl()
 
     @Provides
     fun providesGithubApi(okHttpClient: OkHttpClient): GitHubApi {
