@@ -11,9 +11,11 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.brohit.truecalc.common.Constant
 import com.brohit.truecalc.common.Constant.DATA_STORE_NAME
+import com.brohit.truecalc.data.AppAnalyticsImpl
 import com.brohit.truecalc.data.SearchRepositoryImpl
 import com.brohit.truecalc.data.data_source.local.room.AppDatabase
 import com.brohit.truecalc.data.data_source.remote.GitHubApi
+import com.brohit.truecalc.domain.AppAnalytics
 import com.brohit.truecalc.domain.FixedChargesRepository
 import com.brohit.truecalc.domain.SearchRepository
 import com.google.gson.ExclusionStrategy
@@ -54,6 +56,11 @@ object AppModule {
             "true_calc.db"
         ).build()
     }
+
+    @Singleton
+    @Provides
+    fun providesAppAnalytics(@ApplicationContext context: Context): AppAnalytics =
+        AppAnalyticsImpl(context)
 
 
     @Singleton

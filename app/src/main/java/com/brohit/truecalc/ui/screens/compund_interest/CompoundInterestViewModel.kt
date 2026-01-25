@@ -36,7 +36,7 @@ class CompoundInterestViewModel(
         val isTimeInYears = snapshotFlow { inputState.isTimeInYears }
         val compoundingFrequency = snapshotFlow { inputState.compoundingFrequency }
 
-        combine(
+        combine<Any, CompoundInterestInput>(
             type, principal, rate, time, isTimeInYears, compoundingFrequency
         ) { ar ->
             CompoundInterestInput(

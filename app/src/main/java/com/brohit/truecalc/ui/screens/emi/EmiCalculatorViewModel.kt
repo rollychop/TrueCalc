@@ -30,7 +30,7 @@ import kotlin.math.pow
 class EmiCalculatorInputState {
     val principal = TextFieldState(
         validator = {
-            it.isDigitsOnly() && it.isNotEmpty() && it.toLongOrNull() in 1..999_999_999_999_999
+            it.isDigitsOnly() && it.isNotEmpty() && it.toLongOrNull() in 1L..999_999_999_999_999L
         },
         maxChar = 15
     )

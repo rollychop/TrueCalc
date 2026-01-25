@@ -1,6 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.dagger.hilt)
@@ -8,16 +9,25 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("21")
+    }
+}
+
 android {
     namespace = "com.brohit.truecalc"
-    compileSdk = 35
+    compileSdk = 36
+
+
 
     defaultConfig {
         applicationId = "com.brohit.truecalc"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 3
-        versionName = "0.0.3"
+        targetSdk = 36
+        versionCode = 4
+        versionName = "0.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,19 +43,17 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
-    ksp {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
+//    ksp {
+//        arg("room.schemaLocation", "$projectDir/schemas")
+//    }
 }
 
 dependencies {
