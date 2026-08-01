@@ -19,9 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +49,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.CalculationHistory
 import com.brohit.truecalc.ui.navigation.AppNavigator
+import com.brohit.truecalc.ui.navigation.Route
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -55,24 +60,39 @@ import java.util.Locale
 @Composable
 fun HistoryScreen(
     navigator: AppNavigator,
+    toolRouteFilter: String? = null,
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val groupedHistory by viewModel.groupedHistory.collectAsStateWithLifecycle()
+    
+    val displayHistory = remember(groupedHistory, toolRouteFilter) {
+        if (toolRouteFilter == null) groupedHistory
+        else groupedHistory.filter { (_, entries) ->
+            entries.any { it.toolRoute == toolRouteFilter }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "History",
+                        if (toolRouteFilter != null) "Calculation History" else "History",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
+                },
+                navigationIcon = {
+                    if (toolRouteFilter != null) {
+                        IconButton(onClick = { navigator.navigateUp() }) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                        }
+                    }
                 }
             )
         }
     ) { innerPadding ->
-        if (groupedHistory.isEmpty()) {
+        if (displayHistory.isEmpty()) {
             HistoryEmptyState(modifier = Modifier.padding(innerPadding))
         } else {
             LazyColumn(
@@ -82,14 +102,33 @@ fun HistoryScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                groupedHistory.forEach { (toolName, entries) ->
+                displayHistory.forEach { (toolName, entries) ->
                     item(key = toolName) {
                         HistoryGroupItem(
                             toolName = toolName,
                             entries = entries,
-                            isExpanded = viewModel.expandedTools.contains(toolName),
+                            isExpanded = toolRouteFilter != null || viewModel.expandedTools.contains(toolName),
                             onToggle = { viewModel.toggleExpansion(toolName) },
-                            onDeleteEntry = { viewModel.deleteHistory(it) }
+                            onDeleteEntry = { viewModel.deleteHistory(it) },
+                            onRestore = { entry ->
+                                val route = try {
+                                    Json.decodeFromString<Route>(entry.toolRoute)
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                if (route != null) {
+                                    val restorationRoute = when (route) {
+                                        is Route.EmiCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.CompoundInterestCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.RecurringDepositCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.BmiCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.CalorieCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.IdealWeightCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        else -> route
+                                    }
+                                    navigator.navigate(restorationRoute)
+                                }
+                            }
                         )
                     }
                 }
@@ -104,7 +143,8 @@ private fun HistoryGroupItem(
     entries: List<CalculationHistory>,
     isExpanded: Boolean,
     onToggle: () -> Unit,
-    onDeleteEntry: (Long) -> Unit
+    onDeleteEntry: (Long) -> Unit,
+    onRestore: (CalculationHistory) -> Unit
 ) {
     val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
 
@@ -161,7 +201,8 @@ private fun HistoryGroupItem(
                     entries.forEach { entry ->
                         HistoryEntryDetail(
                             entry = entry,
-                            onDelete = { onDeleteEntry(entry.id) }
+                            onDelete = { onDeleteEntry(entry.id) },
+                            onRestore = { onRestore(entry) }
                         )
                         if (entry != entries.last()) {
                             HorizontalDivider(
@@ -179,7 +220,8 @@ private fun HistoryGroupItem(
 @Composable
 private fun HistoryEntryDetail(
     entry: CalculationHistory,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onRestore: () -> Unit
 ) {
     val inputs = remember(entry.inputsJson) {
         try { Json.decodeFromString<Map<String, String>>(entry.inputsJson) } catch (e: Exception) { emptyMap() }
@@ -212,6 +254,15 @@ private fun HistoryEntryDetail(
                     contentDescription = "Delete",
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(onClick = onRestore, modifier = Modifier.size(24.dp)) {
+                Icon(
+                    imageVector = Icons.Rounded.Restore,
+                    contentDescription = "Restore",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                 )
             }
         }

@@ -20,15 +20,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +50,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
+import com.brohit.truecalc.ui.components.BackIconButton
 import com.brohit.truecalc.ui.components.CustomTextField
 import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
 import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
+import com.brohit.truecalc.ui.navigation.Route
+import kotlinx.serialization.json.Json
 
 
 @Composable
@@ -68,13 +73,32 @@ fun CompoundInterestScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompoundInterestUI(
     navigator: AppNavigator,
     inputState: CompoundInterestInputState,
     state: InvestmentResultState
 ) {
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(inputState.calculationType, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    BackIconButton(onClick = { navigator.navigateUp() })
+                },
+                actions = {
+                    InvestmentToggleButton(inputState)
+                    IconButton(onClick = {
+                        val routeStr = Json.encodeToString(Route.CompoundInterestCalculator(inputState.calculationType) as Route)
+                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr))
+                    }) {
+                        Icon(Icons.Rounded.History, contentDescription = "History")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -86,25 +110,7 @@ fun CompoundInterestUI(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = inputState.calculationType,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    InvestmentToggleButton(inputState)
-                }
-                IconButton(onClick = { navigator.navigateUp() }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Close")
-                }
-            }
+            Spacer(Modifier.height(8.dp))
 
             Column(
                 modifier = Modifier

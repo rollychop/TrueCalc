@@ -12,28 +12,31 @@ sealed class Route {
 
 
     @Serializable
-    data object EmiCalculator : Route()
+    data class EmiCalculator(val restorationJson: String? = null) : Route()
 
     @Serializable
     data object EmiSettings : Route()
 
     @Serializable
-    data class CompoundInterestCalculator(val calculationType: String) : Route()
+    data class CompoundInterestCalculator(
+        val calculationType: String,
+        val restorationJson: String? = null
+    ) : Route()
 
 
     @Serializable
-    data object RecurringDepositCalculator : Route()
+    data class RecurringDepositCalculator(val restorationJson: String? = null) : Route()
 
     //health
 
     @Serializable
-    data object BmiCalculator : Route()
+    data class BmiCalculator(val restorationJson: String? = null) : Route()
 
     @Serializable
-    data object CalorieCalculator : Route()
+    data class CalorieCalculator(val restorationJson: String? = null) : Route()
 
     @Serializable
-    data object IdealWeightCalculator : Route()
+    data class IdealWeightCalculator(val restorationJson: String? = null) : Route()
 
     @Serializable
     data object CategoriesScreen : Route()
@@ -42,7 +45,7 @@ sealed class Route {
     data object FavoritesScreen : Route()
 
     @Serializable
-    data object HistoryScreen : Route()
+    data class HistoryScreen(val toolRouteFilter: String? = null) : Route()
 
     @Serializable
     data object SettingsScreen : Route()

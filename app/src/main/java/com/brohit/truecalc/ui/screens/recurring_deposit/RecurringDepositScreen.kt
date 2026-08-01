@@ -15,10 +15,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -46,7 +48,9 @@ import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
 import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
+import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
+import kotlinx.serialization.json.Json
 
 @Composable
 fun RecurringDepositScreen(
@@ -70,9 +74,17 @@ fun RecurringDepositUI(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recurring Deposit") },
+                title = { Text("Recurring Deposit", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     BackIconButton(onClick = { navigator.navigateUp() })
+                },
+                actions = {
+                    IconButton(onClick = { 
+                        val routeStr = Json.encodeToString(Route.RecurringDepositCalculator() as Route)
+                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
+                    }) {
+                        Icon(Icons.Rounded.History, contentDescription = "History")
+                    }
                 }
             )
         }

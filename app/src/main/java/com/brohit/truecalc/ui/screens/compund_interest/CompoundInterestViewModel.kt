@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -29,9 +30,27 @@ class CompoundInterestViewModel @Inject constructor(
     private val historyManager: HistoryManager
 ) : ViewModel() {
 
-    private val calculationType: String =
-        savedStateHandle.toRoute<Route.CompoundInterestCalculator>().calculationType
+    private val route: Route.CompoundInterestCalculator = savedStateHandle.toRoute()
+    private val calculationType: String = route.calculationType
     val inputState = CompoundInterestInputState(calculationType)
+    
+    init {
+        val restorationJson = route.restorationJson
+        if (!restorationJson.isNullOrEmpty()) {
+            try {
+                val data = Json.decodeFromString<Map<String, String>>(restorationJson)
+                inputState.principal.updateText(data["principal"] ?: "")
+                inputState.interestRate.updateText(data["rate"] ?: "")
+                inputState.time.updateText(data["time"] ?: "")
+                inputState.isTimeInYears = data["isTimeInYears"]?.toBoolean() ?: true
+                data["frequency"]?.let { freqName ->
+                    inputState.compoundingFrequency = CompoundingFrequency.valueOf(freqName)
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
 
     private val stateFlow: StateFlow<InvestmentResultState> = kotlin.run {
         val type = snapshotFlow { inputState.calculationType }
@@ -77,6 +96,13 @@ class CompoundInterestViewModel @Inject constructor(
                 "Final Amount" to result.finalAmount,
                 "Interest Earned" to result.interestEarned,
                 "Total Invested" to result.totalInvestment
+            ),
+            restorationInputs = mapOf(
+                "principal" to input.principal,
+                "rate" to input.rate,
+                "time" to input.time,
+                "isTimeInYears" to input.isTimeInYears.toString(),
+                "frequency" to input.compoundingFrequency.name
             )
         )
     }

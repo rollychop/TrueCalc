@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brohit.truecalc.core.MathUtils.calculateInterestRate
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -86,11 +88,27 @@ data class EmiInput(
 @HiltViewModel
 class EmiCalculatorViewModel @Inject constructor(
     private val repository: FixedChargesRepository,
-    private val historyManager: HistoryManager
+    private val historyManager: HistoryManager,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
     val inputState = EmiCalculatorInputState()
+    
+    init {
+        val restorationJson: String? = savedStateHandle["restorationJson"]
+        if (!restorationJson.isNullOrEmpty()) {
+            try {
+                val data = Json.decodeFromString<Map<String, String>>(restorationJson)
+                inputState.principal.updateText(data["principal"] ?: "")
+                inputState.interestRate.updateText(data["rate"] ?: "")
+                inputState.term.updateText(data["term"] ?: "")
+                inputState.isTermInYears = data["isTermInYears"]?.toBoolean() ?: true
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
 
     val allFixedCharges: StateFlow<List<FixedCharge>> = repository.allFixedCharges
         .flowOn(Dispatchers.IO)
@@ -130,7 +148,7 @@ class EmiCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(input: EmiInput, result: EmiCalculatorState) {
         historyManager.log(
-            route = Route.EmiCalculator,
+            route = Route.EmiCalculator(),
             name = "EMI Calculator",
             inputs = mapOf(
                 "Principal" to "₹${input.principal}",
@@ -141,6 +159,12 @@ class EmiCalculatorViewModel @Inject constructor(
                 "Monthly EMI" to result.monthlyPayment,
                 "Total Interest" to result.totalInterest,
                 "Total Payment" to result.totalPaid
+            ),
+            restorationInputs = mapOf(
+                "principal" to input.principal,
+                "rate" to input.rate,
+                "term" to input.term,
+                "isTermInYears" to input.isTermInYears.toString()
             )
         )
     }

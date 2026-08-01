@@ -10,5 +10,6 @@ data class CalculationHistory(
     val toolName: String,
     val inputsJson: String,
     val resultsJson: String,
+    val restorationJson: String = "",
     val timestamp: Long = System.currentTimeMillis()
 )

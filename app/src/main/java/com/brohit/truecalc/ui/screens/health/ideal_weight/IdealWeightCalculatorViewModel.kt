@@ -1,8 +1,10 @@
 package com.brohit.truecalc.ui.screens.health.ideal_weight
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,14 +16,30 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class IdealWeightCalculatorViewModel @Inject constructor(
-    private val historyManager: HistoryManager
+    private val historyManager: HistoryManager,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val inputState = IdealWeightInputState()
+    
+    init {
+        val route: Route.IdealWeightCalculator = savedStateHandle.toRoute()
+        val restorationJson = route.restorationJson
+        if (!restorationJson.isNullOrEmpty()) {
+            try {
+                val data = Json.decodeFromString<Map<String, String>>(restorationJson)
+                inputState.height.updateText(data["height"] ?: "")
+                data["gender"]?.let { inputState.gender = it }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<IdealWeightResultState> = run {
@@ -43,7 +61,7 @@ class IdealWeightCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(height: String, gender: String, result: IdealWeightResultState) {
         historyManager.log(
-            route = Route.IdealWeightCalculator,
+            route = Route.IdealWeightCalculator(),
             name = "Ideal Weight Calculator",
             inputs = mapOf(
                 "Height" to "$height cm",
@@ -51,6 +69,10 @@ class IdealWeightCalculatorViewModel @Inject constructor(
             ),
             results = mapOf(
                 "Ideal Weight" to "${result.idealWeight} kg"
+            ),
+            restorationInputs = mapOf(
+                "height" to height,
+                "gender" to gender
             )
         )
     }

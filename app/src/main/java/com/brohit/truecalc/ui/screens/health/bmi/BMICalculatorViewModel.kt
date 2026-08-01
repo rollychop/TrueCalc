@@ -1,8 +1,10 @@
 package com.brohit.truecalc.ui.screens.health.bmi
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,14 +16,30 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class BMICalculatorViewModel @Inject constructor(
-    private val historyManager: HistoryManager
+    private val historyManager: HistoryManager,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val inputState = BMIInputState()
+    
+    init {
+        val route: Route.BmiCalculator = savedStateHandle.toRoute()
+        val restorationJson = route.restorationJson
+        if (!restorationJson.isNullOrEmpty()) {
+            try {
+                val data = Json.decodeFromString<Map<String, String>>(restorationJson)
+                inputState.weight.updateText(data["weight"] ?: "")
+                inputState.height.updateText(data["height"] ?: "")
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<BMIResultState> = run {
@@ -44,7 +62,7 @@ class BMICalculatorViewModel @Inject constructor(
 
     private fun logCalculation(weight: String, height: String, result: BMIResultState) {
         historyManager.log(
-            route = Route.BmiCalculator,
+            route = Route.BmiCalculator(),
             name = "BMI Calculator",
             inputs = mapOf(
                 "Weight" to "$weight kg",
@@ -53,6 +71,10 @@ class BMICalculatorViewModel @Inject constructor(
             results = mapOf(
                 "BMI" to result.bmiValue,
                 "Category" to result.category
+            ),
+            restorationInputs = mapOf(
+                "weight" to weight,
+                "height" to height
             )
         )
     }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +22,8 @@ class HistoryManager @Inject constructor(
         route: Route,
         name: String,
         inputs: Map<String, String>,
-        results: Map<String, String>
+        results: Map<String, String>,
+        restorationInputs: Map<String, String> = emptyMap()
     ) {
         val routeStr = Json.encodeToString(route)
         
@@ -35,7 +37,8 @@ class HistoryManager @Inject constructor(
                 toolRoute = routeStr,
                 toolName = name,
                 inputsJson = Json.encodeToString(inputs),
-                resultsJson = Json.encodeToString(results)
+                resultsJson = Json.encodeToString(results),
+                restorationJson = Json.encodeToString(restorationInputs)
             )
             repository.addHistory(history)
             debounceJobs.remove(routeStr)

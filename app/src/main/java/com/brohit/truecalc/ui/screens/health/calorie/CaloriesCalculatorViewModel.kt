@@ -1,8 +1,10 @@
 package com.brohit.truecalc.ui.screens.health.calorie
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,14 +16,33 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class CaloriesCalculatorViewModel @Inject constructor(
-    private val historyManager: HistoryManager
+    private val historyManager: HistoryManager,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val inputState = CaloriesInputState()
+    
+    init {
+        val route: Route.CalorieCalculator = savedStateHandle.toRoute()
+        val restorationJson = route.restorationJson
+        if (!restorationJson.isNullOrEmpty()) {
+            try {
+                val data = Json.decodeFromString<Map<String, String>>(restorationJson)
+                inputState.age.updateText(data["age"] ?: "")
+                inputState.height.updateText(data["height"] ?: "")
+                inputState.weight.updateText(data["weight"] ?: "")
+                data["gender"]?.let { inputState.gender = it }
+                data["activity"]?.let { inputState.activityLevel = it }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<CaloriesResultState> = run {
@@ -52,7 +73,7 @@ class CaloriesCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(age: String, gender: String, activity: String, result: CaloriesResultState) {
         historyManager.log(
-            route = Route.CalorieCalculator,
+            route = Route.CalorieCalculator(),
             name = "Calorie Calculator",
             inputs = mapOf(
                 "Age" to "$age years",
@@ -62,6 +83,13 @@ class CaloriesCalculatorViewModel @Inject constructor(
             results = mapOf(
                 "BMR" to "${result.bmrValue} kcal/day",
                 "Calories Needed" to "${result.caloriesNeeded} kcal/day"
+            ),
+            restorationInputs = mapOf(
+                "age" to age,
+                "gender" to gender,
+                "activity" to activity,
+                "height" to inputState.height.text,
+                "weight" to inputState.weight.text
             )
         )
     }

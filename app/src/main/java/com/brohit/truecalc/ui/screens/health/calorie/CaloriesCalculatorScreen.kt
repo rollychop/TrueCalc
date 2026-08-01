@@ -14,15 +14,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,11 +33,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.brohit.truecalc.ui.components.BackIconButton
 import com.brohit.truecalc.ui.components.CustomTextField
 import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
+import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.theme.TrueCalcTheme
+import kotlinx.serialization.json.Json
 
 @Composable
 fun CaloriesCalculatorScreen(
@@ -48,6 +54,7 @@ fun CaloriesCalculatorScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaloriesCalculatorUI(
     navigator: AppNavigator,
@@ -58,7 +65,24 @@ fun CaloriesCalculatorUI(
         listOf("Sedentary", "Lightly active", "Moderately active", "Very active", "Extra active")
     val genders = listOf("Male", "Female")
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Calories Calculator", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    BackIconButton(onClick = { navigator.navigateUp() })
+                },
+                actions = {
+                    IconButton(onClick = { 
+                        val routeStr = Json.encodeToString(Route.CalorieCalculator() as Route)
+                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
+                    }) {
+                        Icon(Icons.Rounded.History, contentDescription = "History")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -70,20 +94,7 @@ fun CaloriesCalculatorUI(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Calories Calculator",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(onClick = { navigator.navigateUp() }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Close")
-                }
-            }
+            Spacer(Modifier.height(8.dp))
 
             Column(
                 modifier = Modifier

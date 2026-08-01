@@ -29,7 +29,11 @@ data class CalculatorWithCategory(
 )
 
 fun Route.toCalculator(): Calculator? {
-    return calculatorsWithCategories.flatMap { it.calculators }.find { it.route == this }
+    return calculatorsWithCategories.flatMap { it.calculators }.find { 
+        val otherRoute = it.route
+        // Simple comparison ignoring parameters for identification
+        otherRoute::class == this::class
+    }
 }
 
 @Suppress("unused")
@@ -40,31 +44,31 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "EMI Calculator",
                 "Calculate EMI payments",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.AttachMoney
             ),
             Calculator(
                 "Investment Calculator",
                 "Calculate investment growth",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.AutoMirrored.Filled.TrendingUp
             ),
             Calculator(
                 "Savings Calculator",
                 "Calculate savings goals",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Savings
             ),
             Calculator(
                 "Mortgage Calculator",
                 "Calculate mortgage payments",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Home
             ),
             Calculator(
                 "Compound Interest Calculator",
                 "Calculate compound interest",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.MonetizationOn
             )
         )
@@ -75,19 +79,19 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "BMI Calculator",
                 "Calculate your Body Mass Index",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Accessibility
             ),
             Calculator(
                 "Calorie Calculator",
                 "Estimate daily calorie needs",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Restaurant
             ),
             Calculator(
                 "Ideal Weight Calculator",
                 "Calculate your ideal weight",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Scale
             )
         )
@@ -98,37 +102,37 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "Currency Converter",
                 "Convert between currencies",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.CurrencyExchange
             ),
             Calculator(
                 "Temperature Converter",
                 "Convert between temperature units",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Thermostat
             ),
             Calculator(
                 "Area Converter",
                 "Convert between area units",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.CropSquare
             ),
             Calculator(
                 "Volume Converter",
                 "Convert between volume units",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Dehaze
             ),
             Calculator(
                 "Weight Converter",
                 "Convert between weight units",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.LineWeight
             ),
             Calculator(
                 "Length Converter",
                 "Convert between length units",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Straighten
             )
         )
@@ -139,25 +143,25 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "Percentage Calculator",
                 "Calculate percentages",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Percent
             ),
             Calculator(
                 "Ratio Calculator",
                 "Calculate ratios",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Timeline
             ),
             Calculator(
                 "Average Calculator",
                 "Calculate average",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Functions
             ),
             Calculator(
                 "Scientific Calculator",
                 "Perform scientific calculations",
-                Route.EmiCalculator,
+                Route.EmiCalculator(),
                 Icons.Filled.Science
             )
         )
@@ -171,7 +175,7 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             Calculator(
                 name = "EMI Calculator",
                 description = "Calculate EMI payments",
-                route = Route.EmiCalculator,
+                route = Route.EmiCalculator(),
                 icon = Icons.Filled.AttachMoney
             ),
             Calculator(
@@ -195,7 +199,7 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             Calculator(
                 name = "Recurring Deposit",
                 description = "Calculates recurring interest",
-                route = Route.RecurringDepositCalculator,
+                route = Route.RecurringDepositCalculator(),
                 icon = Icons.Filled.Timeline
             ),
         )
@@ -206,19 +210,19 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "BMI Calculator",
                 "Calculate your Body Mass Index",
-                Route.BmiCalculator,
+                Route.BmiCalculator(),
                 Icons.Filled.Accessibility
             ),
             Calculator(
                 "Calorie Calculator",
                 "Estimate daily calorie needs",
-                Route.CalorieCalculator,
+                Route.CalorieCalculator(),
                 Icons.Filled.Restaurant
             ),
             Calculator(
                 "Ideal Weight Calculator",
                 "Calculate your ideal weight",
-                Route.IdealWeightCalculator,
+                Route.IdealWeightCalculator(),
                 Icons.Filled.Scale
             )
         )

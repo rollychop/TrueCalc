@@ -24,10 +24,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,7 @@ import com.brohit.truecalc.ui.components.SettingsClickableItem
 import com.brohit.truecalc.ui.components.SettingsInfoItem
 import com.brohit.truecalc.ui.components.SettingsSectionHeader
 import com.brohit.truecalc.ui.components.SettingsSwitchItem
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +56,25 @@ fun SettingsScreen(
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val isDynamicColorEnabled by viewModel.isDynamicColorEnabled.collectAsStateWithLifecycle()
-    
+
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showClearFavoritesDialog by remember { mutableStateOf(false) }
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is SettingsEvent.DataCleared -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -100,14 +119,14 @@ fun SettingsScreen(
                 title = "Clear Favorites",
                 subtitle = "Remove all bookmarked tools",
                 icon = Icons.Rounded.DeleteSweep,
-                onClick = { viewModel.clearFavorites() }
+                onClick = { showClearFavoritesDialog = true }
             )
 
             SettingsClickableItem(
                 title = "Clear History",
                 subtitle = "Reset usage analytics & suggestions",
                 icon = Icons.Rounded.History,
-                onClick = { viewModel.clearHistory() }
+                onClick = { showClearHistoryDialog = true }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -160,6 +179,52 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showClearFavoritesDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearFavoritesDialog = false },
+            title = { Text("Clear Favorites?") },
+            text = { Text("This will remove all your bookmarked tools. This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearFavorites()
+                        showClearFavoritesDialog = false
+                    }
+                ) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearFavoritesDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showClearHistoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearHistoryDialog = false },
+            title = { Text("Clear History?") },
+            text = { Text("This will reset all usage analytics and history. This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearHistory()
+                        showClearHistoryDialog = false
+                    }
+                ) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistoryDialog = false }) {
                     Text("Cancel")
                 }
             }

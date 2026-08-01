@@ -58,7 +58,7 @@ fun MainAppScreen(
             BottomNavItem("Home", Route.MainScreen, Icons.Rounded.Home),
             BottomNavItem("Categories", Route.CategoriesScreen, Icons.Rounded.Category),
             BottomNavItem("Favorites", Route.FavoritesScreen, Icons.Rounded.Favorite),
-            BottomNavItem("History", Route.HistoryScreen, Icons.Rounded.History),
+            BottomNavItem("History", Route.HistoryScreen(), Icons.Rounded.History),
             BottomNavItem("Settings", Route.SettingsScreen, Icons.Rounded.Settings)
         )
 

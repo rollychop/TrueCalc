@@ -58,8 +58,12 @@ fun NavGraphBuilder.createNavGraph(navigator: AppNavigator) {
     composable<Route.FavoritesScreen> {
         FavoritesScreen(navigator)
     }
-    composable<Route.HistoryScreen> {
-        HistoryScreen(navigator)
+    composable<Route.HistoryScreen> { backStackEntry ->
+        val route: Route.HistoryScreen = backStackEntry.toRoute()
+        HistoryScreen(
+            navigator = navigator,
+            toolRouteFilter = route.toolRouteFilter
+        )
     }
     composable<Route.SettingsScreen> {
         SettingsScreen()
