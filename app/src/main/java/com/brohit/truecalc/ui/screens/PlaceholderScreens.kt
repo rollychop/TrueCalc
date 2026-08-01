@@ -9,11 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun HistoryScreen() {
-    PlaceholderScreen("History")
-}
-
-@Composable
 private fun PlaceholderScreen(name: String) {
     Box(
         modifier = Modifier.fillMaxSize(),

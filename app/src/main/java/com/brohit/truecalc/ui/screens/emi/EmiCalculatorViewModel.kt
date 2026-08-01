@@ -12,7 +12,9 @@ import com.brohit.truecalc.core.TextUtils.toFixed2
 import com.brohit.truecalc.core.TextUtils.toFixed2INR
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
 import com.brohit.truecalc.domain.FixedChargesRepository
+import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.domain.model.TextFieldState
+import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -83,7 +85,8 @@ data class EmiInput(
 
 @HiltViewModel
 class EmiCalculatorViewModel @Inject constructor(
-    private val repository: FixedChargesRepository
+    private val repository: FixedChargesRepository,
+    private val historyManager: HistoryManager
 ) : ViewModel() {
 
 
@@ -116,10 +119,31 @@ class EmiCalculatorViewModel @Inject constructor(
             )
         }
             .mapLatest { emiInput ->
-                calculateEmi(emiInput)
+                val result = calculateEmi(emiInput)
+                if (result.mp > 0) {
+                    logCalculation(emiInput, result)
+                }
+                result
             }
             .flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EmiCalculatorState())
+
+    private fun logCalculation(input: EmiInput, result: EmiCalculatorState) {
+        historyManager.log(
+            route = Route.EmiCalculator,
+            name = "EMI Calculator",
+            inputs = mapOf(
+                "Principal" to "₹${input.principal}",
+                "Interest Rate" to "${input.rate}%",
+                "Term" to "${input.term} ${if (input.isTermInYears) "Years" else "Months"}"
+            ),
+            results = mapOf(
+                "Monthly EMI" to result.monthlyPayment,
+                "Total Interest" to result.totalInterest,
+                "Total Payment" to result.totalPaid
+            )
+        )
+    }
 
     private fun calculateEmi(input: EmiInput): EmiCalculatorState {
         val fixedCharges = input.fixedCharges

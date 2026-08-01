@@ -3,6 +3,9 @@ package com.brohit.truecalc.ui.screens.health.bmi
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.brohit.truecalc.domain.HistoryManager
+import com.brohit.truecalc.ui.navigation.Route
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,8 +14,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class BMICalculatorViewModel : ViewModel() {
+@HiltViewModel
+class BMICalculatorViewModel @Inject constructor(
+    private val historyManager: HistoryManager
+) : ViewModel() {
 
     val inputState = BMIInputState()
 
@@ -23,12 +30,32 @@ class BMICalculatorViewModel : ViewModel() {
 
         combine(weight, height) { weightText, heightText ->
             Pair(weightText, heightText)
-        }.mapLatest { (weightText, heightText) ->
-            calculateBMI(weightText, heightText)
-        }.flowOn(Dispatchers.Default)
+        }
+            .mapLatest { (weightText, heightText) ->
+                val result = calculateBMI(weightText, heightText)
+                if (result.bmiValue.isNotEmpty()) {
+                    logCalculation(weightText, heightText, result)
+                }
+                result
+            }.flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), BMIResultState())
 
     val state: StateFlow<BMIResultState> = stateFlow
+
+    private fun logCalculation(weight: String, height: String, result: BMIResultState) {
+        historyManager.log(
+            route = Route.BmiCalculator,
+            name = "BMI Calculator",
+            inputs = mapOf(
+                "Weight" to "$weight kg",
+                "Height" to "$height cm"
+            ),
+            results = mapOf(
+                "BMI" to result.bmiValue,
+                "Category" to result.category
+            )
+        )
+    }
 
     private fun calculateBMI(weightText: String, heightText: String): BMIResultState {
         val weight = weightText.toDoubleOrNull() ?: return BMIResultState()

@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.brohit.truecalc.ui.screens.emi.EmiCalculatorState
@@ -40,20 +39,24 @@ fun EMIPieChart(
     val totalInterest = state.ti
     val totalPrincipal = totalPaid - totalInterest
     val ip = (totalInterest / totalPaid * 100).toInt()
-    var data by remember(state) {
+
+    val interestColor = MaterialTheme.colorScheme.error
+    val principalColor = MaterialTheme.colorScheme.primary
+
+    var data by remember(state, interestColor, principalColor) {
         mutableStateOf(
             listOf(
                 Pie(
                     label = "Interest (${ip}%)",
                     data = totalInterest,
-                    color = Color(0xFFFF5722), // Orange
-                    selectedColor = Color(0xFFD84315) // Darker Orange
+                    color = interestColor,
+                    selectedColor = interestColor.copy(alpha = 0.8f)
                 ),
                 Pie(
                     label = "Principal (${100 - ip}%)",
                     data = totalPrincipal,
-                    color = Color(0xFF03DAC5), // Teal
-                    selectedColor = Color(0xFF018786) // Dark Teal
+                    color = principalColor,
+                    selectedColor = principalColor.copy(alpha = 0.8f)
                 )
             )
         )
@@ -62,14 +65,14 @@ fun EMIPieChart(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, shape = MaterialTheme.shapes.medium)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Breakdown of EMI",
             style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -93,7 +96,7 @@ fun EMIPieChart(
             colorAnimExitSpec = tween(300),
             scaleAnimExitSpec = tween(300),
             spaceDegreeAnimExitSpec = tween(300),
-            style = Pie.Style.Stroke()
+            style = Pie.Style.Stroke(width = 40.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -118,7 +121,11 @@ fun EMIPieChart(
                             )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(slice.label ?: "", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = slice.label ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

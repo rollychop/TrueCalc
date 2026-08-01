@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,18 +46,9 @@ import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.favorites.FavoritesViewModel
-import com.brohit.truecalc.ui.theme.PrimaryBlue
-import com.brohit.truecalc.ui.theme.SuccessGreen
-import com.brohit.truecalc.ui.theme.TonalAmber
-import com.brohit.truecalc.ui.theme.TonalBlue
-import com.brohit.truecalc.ui.theme.TonalGreen
-import com.brohit.truecalc.ui.theme.TonalPurple
-import com.brohit.truecalc.ui.theme.TonalRed
-import com.brohit.truecalc.ui.theme.WarningAmber
 import com.brohit.truecalc.ui.utils.MoreIcon
 import com.brohit.truecalc.ui.utils.getToolColors
 import com.brohit.truecalc.ui.utils.toIntent
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)

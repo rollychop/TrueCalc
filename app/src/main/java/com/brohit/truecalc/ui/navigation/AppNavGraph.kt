@@ -3,20 +3,20 @@ package com.brohit.truecalc.ui.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.brohit.truecalc.ui.screens.HistoryScreen
-import com.brohit.truecalc.ui.screens.settings.SettingsScreen
 import com.brohit.truecalc.ui.screens.categories.CategoriesScreen
 import com.brohit.truecalc.ui.screens.compund_interest.CompoundInterestScreen
 import com.brohit.truecalc.ui.screens.emi.EmiCalculatorScreen
 import com.brohit.truecalc.ui.screens.emi.EmiSettingsScreen
+import com.brohit.truecalc.ui.screens.favorites.FavoritesScreen
 import com.brohit.truecalc.ui.screens.health.bmi.BMICalculatorScreen
 import com.brohit.truecalc.ui.screens.health.calorie.CaloriesCalculatorScreen
 import com.brohit.truecalc.ui.screens.health.ideal_weight.IdealWeightCalculatorScreen
+import com.brohit.truecalc.ui.screens.history.HistoryScreen
 import com.brohit.truecalc.ui.screens.home.CategoryDetailScreen
 import com.brohit.truecalc.ui.screens.home.HomeScreen
-import com.brohit.truecalc.ui.screens.favorites.FavoritesScreen
 import com.brohit.truecalc.ui.screens.recurring_deposit.RecurringDepositScreen
 import com.brohit.truecalc.ui.screens.search.SearchScreen
+import com.brohit.truecalc.ui.screens.settings.SettingsScreen
 
 fun NavGraphBuilder.createNavGraph(navigator: AppNavigator) {
 
@@ -59,7 +59,7 @@ fun NavGraphBuilder.createNavGraph(navigator: AppNavigator) {
         FavoritesScreen(navigator)
     }
     composable<Route.HistoryScreen> {
-        HistoryScreen()
+        HistoryScreen(navigator)
     }
     composable<Route.SettingsScreen> {
         SettingsScreen()

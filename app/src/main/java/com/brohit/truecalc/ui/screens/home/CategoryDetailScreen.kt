@@ -26,7 +26,6 @@ import com.brohit.truecalc.ui.components.CompactToolCard
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.screens.favorites.FavoritesViewModel
 import com.brohit.truecalc.ui.utils.getToolColors
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.ui.components.CompactToolCard
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.Route
-import com.brohit.truecalc.ui.screens.home.Calculator
 import com.brohit.truecalc.ui.screens.home.toCalculator
 import com.brohit.truecalc.ui.utils.getToolColors
 import kotlinx.serialization.json.Json

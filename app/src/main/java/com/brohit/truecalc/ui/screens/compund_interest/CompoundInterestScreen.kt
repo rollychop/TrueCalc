@@ -79,7 +79,7 @@ fun CompoundInterestUI(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(horizontal = 16.dp),
@@ -109,7 +109,7 @@ fun CompoundInterestUI(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp)
             ) {
                 CustomTextField(
@@ -173,15 +173,15 @@ fun CompoundInterestUI(
                         inputState.compoundingFrequency = it
                     },
                     optionTitleSelector = { it.getLabelFor(inputState.calculationType) },
-                    containerColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .border(1.dp, Color(0xFFD7D7D7), shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp)
             ) {
                 Text("Calculations", style = MaterialTheme.typography.headlineSmall)
@@ -193,7 +193,7 @@ fun CompoundInterestUI(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {

@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,7 +57,6 @@ import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
-import com.brohit.truecalc.ui.theme.Blue
 
 
 @Composable
@@ -73,7 +71,7 @@ fun LoanCalculatorUI(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(horizontal = 16.dp),
@@ -105,7 +103,7 @@ fun LoanCalculatorUI(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp)
             ) {
                 CustomTextField(
@@ -167,7 +165,7 @@ fun LoanCalculatorUI(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 var isVisible by remember { mutableStateOf(false) }
@@ -198,7 +196,7 @@ fun LoanCalculatorUI(
                         modifier = Modifier
                             .padding(top = 4.dp)
                             .clip(MaterialTheme.shapes.medium)
-                            .background(Color(0xfff4f5fe))
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         Row(
                             modifier = Modifier
@@ -212,17 +210,17 @@ fun LoanCalculatorUI(
                                 text = "Fixed Charges",
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = Color(0xff16171d)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = "add charges",
                                 modifier = Modifier
                                     .clip(CircleShape)
-                                    .background(Blue)
+                                    .background(MaterialTheme.colorScheme.primary)
                                     .size(24.dp)
                                     .padding(4.dp),
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                         HorizontalDivider(
@@ -245,8 +243,8 @@ fun LoanCalculatorUI(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .border(1.dp, Color(0xFFD7D7D7), shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp)
             ) {
                 Text(
@@ -270,7 +268,7 @@ fun LoanCalculatorUI(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -287,10 +285,10 @@ fun LoanCalculatorUI(
                         .fillMaxWidth()
                         .padding(top = 16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text("Save", color = Color.White)
+                    Text("Save", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
 

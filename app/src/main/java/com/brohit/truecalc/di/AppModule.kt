@@ -49,6 +49,12 @@ object AppModule {
     @Provides
     fun providesIoDispatcher() = Dispatchers.IO
 
+    @Singleton
+    @Provides
+    fun providesApplicationScope(
+        ioDispatcher: CoroutineDispatcher
+    ): CoroutineScope = CoroutineScope(SupervisorJob() + ioDispatcher)
+
     private val MIGRATION_1_2 = object : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(
@@ -74,6 +80,20 @@ object AppModule {
         }
     }
 
+    private val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `calculation_history_table` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`toolRoute` TEXT NOT NULL, " +
+                        "`toolName` TEXT NOT NULL, " +
+                        "`inputsJson` TEXT NOT NULL, " +
+                        "`resultsJson` TEXT NOT NULL, " +
+                        "`timestamp` INTEGER NOT NULL)"
+            )
+        }
+    }
+
     @Singleton
     @Provides
     fun providesAppDB(@ApplicationContext context: Context): AppDatabase {
@@ -82,7 +102,7 @@ object AppModule {
             AppDatabase::class.java,
             "true_calc.db"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 
@@ -184,6 +204,11 @@ object AppModule {
     fun providesToolUsageDao(
         appDatabase: AppDatabase
     ) = appDatabase.toolUsage()
+
+    @Provides
+    fun providesCalculationHistoryDao(
+        appDatabase: AppDatabase
+    ) = appDatabase.calculationHistory()
 
     @Provides
     fun providesSearchRepository(): SearchRepository = SearchRepositoryImpl()

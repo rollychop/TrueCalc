@@ -5,9 +5,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.navigation.Route
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,12 +18,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 import kotlin.math.pow
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CompoundInterestViewModel(
-    savedStateHandle: SavedStateHandle
+@HiltViewModel
+class CompoundInterestViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val historyManager: HistoryManager
 ) : ViewModel() {
 
     private val calculationType: String =
@@ -48,11 +53,33 @@ class CompoundInterestViewModel(
                 compoundingFrequency = ar[5] as CompoundingFrequency
             )
         }.mapLatest { input ->
-            calculateCompoundInterest(input)
+            val result = calculateCompoundInterest(input)
+            if (result.amount > 0) {
+                logCalculation(input, result)
+            }
+            result
         }
             .flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), InvestmentResultState())
     val state: StateFlow<InvestmentResultState> = stateFlow
+
+    private fun logCalculation(input: CompoundInterestInput, result: InvestmentResultState) {
+        historyManager.log(
+            route = Route.CompoundInterestCalculator(input.type),
+            name = input.type,
+            inputs = mapOf(
+                "Principal" to "₹${input.principal}",
+                "Interest Rate" to "${input.rate}%",
+                "Time" to "${input.time} ${if (input.isTimeInYears) "Years" else "Months"}",
+                "Frequency" to input.compoundingFrequency.getLabelFor(input.type)
+            ),
+            results = mapOf(
+                "Final Amount" to result.finalAmount,
+                "Interest Earned" to result.interestEarned,
+                "Total Invested" to result.totalInvestment
+            )
+        )
+    }
 
     private fun calculateCompoundInterest(input: CompoundInterestInput): InvestmentResultState {
         val principal = input.principal.toDoubleOrNull() ?: return InvestmentResultState()

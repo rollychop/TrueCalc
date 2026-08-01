@@ -35,7 +35,7 @@ fun InvestmentBreakdownChart(
     modifier: Modifier = Modifier
 ) {
     val investedColor = MaterialTheme.colorScheme.primary
-    val interestColor = MaterialTheme.colorScheme.secondary
+    val interestColor = MaterialTheme.colorScheme.error
     
     val data by remember(totalAmount, interest, principal, investedColor, interestColor) {
         mutableStateOf(

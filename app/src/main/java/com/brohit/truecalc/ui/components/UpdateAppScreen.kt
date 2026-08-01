@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,7 +48,7 @@ fun UpdateAppScreen(
             modifier = Modifier
                 .padding(16.dp)
                 .shadow(8.dp, RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
                 modifier = Modifier
@@ -66,13 +65,14 @@ fun UpdateAppScreen(
                 Text(
                     text = "Update Required",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Your app version has expired. Please update to continue using the app.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -90,11 +90,13 @@ fun UpdateAppScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp)
-                            .background(Color(0xFFF5F5F5), MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), MaterialTheme.shapes.medium)
                             .padding(12.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        MarkdownText(releaseNote)
+                        MarkdownText(
+                            markdown = releaseNote,
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -102,15 +104,15 @@ fun UpdateAppScreen(
                 Button(
                     onClick = onUpdate,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Update Now")
+                    Text("Update Now", color = MaterialTheme.colorScheme.onPrimary)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "Close app and update later",
                     modifier = Modifier.clickable { onCloseApp() },
-                    color = Color.Blue
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

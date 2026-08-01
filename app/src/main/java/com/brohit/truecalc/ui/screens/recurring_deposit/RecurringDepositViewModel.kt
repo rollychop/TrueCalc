@@ -3,8 +3,12 @@ package com.brohit.truecalc.ui.screens.recurring_deposit
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.brohit.truecalc.domain.HistoryManager
 import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.InvestmentResultState
+import com.brohit.truecalc.ui.navigation.Route
+import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,11 +17,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 import kotlin.math.pow
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RecurringDepositViewModel : ViewModel() {
+@HiltViewModel
+class RecurringDepositViewModel @Inject constructor(
+    private val historyManager: HistoryManager
+) : ViewModel() {
     val inputState = RecurringDepositInputState()
 
     private val stateFlow: StateFlow<InvestmentResultState> = kotlin.run {
@@ -40,11 +48,34 @@ class RecurringDepositViewModel : ViewModel() {
                 compoundingFrequency = ar[5] as CompoundingFrequency
             )
         }.mapLatest { input ->
-            calculateRecurringDeposit(input)
+            val result = calculateRecurringDeposit(input)
+            if (result.amount > 0) {
+                logCalculation(input, result)
+            }
+            result
         }
             .flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), InvestmentResultState())
     val state: StateFlow<InvestmentResultState> = stateFlow
+
+    private fun logCalculation(input: RecurringDepositInput, result: InvestmentResultState) {
+        historyManager.log(
+            route = Route.RecurringDepositCalculator,
+            name = "Recurring Deposit",
+            inputs = mapOf(
+                "Installment" to "₹${input.principal}",
+                "Interval" to input.interval.label,
+                "Interest Rate" to "${input.rate}%",
+                "Time" to "${input.time} ${if (input.isTimeInYears) "Years" else "Months"}",
+                "Payout" to input.compoundingFrequency.getLabelFor(CalculationType.FIXED)
+            ),
+            results = mapOf(
+                "Maturity Amount" to result.finalAmount,
+                "Interest Earned" to result.interestEarned,
+                "Total Invested" to result.totalInvestment
+            )
+        )
+    }
 
     private fun calculateRecurringDeposit(input: RecurringDepositInput): InvestmentResultState {
         val interval = input.interval

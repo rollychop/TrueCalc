@@ -3,6 +3,7 @@ package com.brohit.truecalc.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brohit.truecalc.domain.FavoritesRepository
+import com.brohit.truecalc.domain.HistoryRepository
 import com.brohit.truecalc.domain.SettingsRepository
 import com.brohit.truecalc.domain.ThemeMode
 import com.brohit.truecalc.domain.UsageRepository
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val favoritesRepository: FavoritesRepository,
-    private val usageRepository: UsageRepository
+    private val usageRepository: UsageRepository,
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     val themeMode: StateFlow<ThemeMode> = settingsRepository.themeMode
@@ -47,6 +49,7 @@ class SettingsViewModel @Inject constructor(
     fun clearHistory() {
         viewModelScope.launch {
             usageRepository.clearHistory()
+            historyRepository.clearAllHistory()
         }
     }
 }

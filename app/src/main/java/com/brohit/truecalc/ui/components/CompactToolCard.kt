@@ -64,7 +64,7 @@ fun CompactToolCard(
                     imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
                     contentDescription = "Favorite",
                     modifier = Modifier.size(18.dp),
-                    tint = if (isFavorite) Color(0xFFFFB300) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                 )
             }
 
@@ -121,13 +121,13 @@ fun CompactToolCard(
 @androidx.compose.ui.tooling.preview.Preview
 @Composable
 private fun CompactToolCardPreview() {
-    androidx.compose.material3.MaterialTheme {
+    MaterialTheme {
         CompactToolCard(
             name = "EMI Calculator",
             description = "Calculate EMI payments",
-            icon = androidx.compose.material.icons.Icons.Rounded.StarBorder,
-            iconContainerColor = androidx.compose.ui.graphics.Color.Blue,
-            backgroundColor = androidx.compose.ui.graphics.Color(0xFFEFF6FF),
+            icon = Icons.Rounded.StarBorder,
+            iconContainerColor = MaterialTheme.colorScheme.primary,
+            backgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
             onClick = {}
         )
     }
