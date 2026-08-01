@@ -64,13 +64,7 @@ class MainActivity : ComponentActivity() {
 
     private val appUpdateListener = InstallStateUpdatedListener { state ->
         if (state.installStatus() == InstallStatus.DOWNLOADED) {
-            view.showSnackBar(
-                message = "Update Downloaded",
-                actionLabel = "Restart",
-                onAction = {
-                    appUpdateManager.completeUpdate()
-                }
-            )
+            notifyUpdateDownloaded()
         }
     }
 
@@ -90,10 +84,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                notifyUpdateDownloaded()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        appUpdateManager.unregisterListener(appUpdateListener)
+    }
+
     private fun checkForAppUpdate() {
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-            if ((appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE)
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
             ) {
                 try {
@@ -106,8 +114,20 @@ class MainActivity : ComponentActivity() {
                 } catch (exception: IntentSender.SendIntentException) {
                     Log.d(TAG, "checkForAppUpdate: ", exception)
                 }
+            } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                notifyUpdateDownloaded()
             }
         }
+    }
+
+    private fun notifyUpdateDownloaded() {
+        view.showSnackBar(
+            message = "Update Downloaded",
+            actionLabel = "Restart",
+            onAction = {
+                appUpdateManager.completeUpdate()
+            }
+        )
     }
 
 
