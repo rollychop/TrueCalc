@@ -6,12 +6,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.withResumed
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 interface AppNavigator {
     fun navigateUp(): Boolean
-    fun navigate(route: Route)
+    fun navigate(route: Route, builder: NavOptionsBuilder.() -> Unit = {})
 }
 
 object FakeAppNavigator : AppNavigator {
@@ -19,7 +20,7 @@ object FakeAppNavigator : AppNavigator {
         return true
     }
 
-    override fun navigate(route: Route) {
+    override fun navigate(route: Route, builder: NavOptionsBuilder.() -> Unit) {
         return
     }
 }
@@ -43,10 +44,15 @@ class NavigationController(
             return controller.navigateUp()
         }
 
-        override fun navigate(route: Route) {
+        override fun navigate(route: Route, builder: NavOptionsBuilder.() -> Unit) {
             coroutineScope.launch {
                 controller.currentBackStackEntry?.withResumed {
-                    controller.navigate(route)
+                    controller.navigate(route) {
+                        if (route is Route.Calculator) {
+                            popUpTo<Route.Calculator> { inclusive = true }
+                        }
+                        builder()
+                    }
                 } ?: run {
                     Toast.makeText(
                         controller.context,

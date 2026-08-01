@@ -70,7 +70,7 @@ fun IdealWeightCalculatorUI(
                 },
                 actions = {
                     IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.IdealWeightCalculator() as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.IdealWeight() as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

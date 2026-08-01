@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Restore
@@ -33,11 +34,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,8 +54,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.CalculationHistory
+import com.brohit.truecalc.ui.components.ConfirmationDialog
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.Route
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
@@ -64,7 +72,20 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val groupedHistory by viewModel.groupedHistory.collectAsStateWithLifecycle()
-    
+    var showClearAllDialog by remember { mutableStateOf(false) }
+    var entryToDelete by remember { mutableStateOf<Long?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is HistoryEvent.AllCleared -> {
+                    snackbarHostState.showSnackbar("History cleared")
+                }
+            }
+        }
+    }
+
     val displayHistory = remember(groupedHistory, toolRouteFilter) {
         if (toolRouteFilter == null) groupedHistory
         else groupedHistory.filter { (_, entries) ->
@@ -73,6 +94,7 @@ fun HistoryScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -88,6 +110,13 @@ fun HistoryScreen(
                             Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                         }
                     }
+                },
+                actions = {
+                    if (displayHistory.isNotEmpty()) {
+                        IconButton(onClick = { showClearAllDialog = true }) {
+                            Icon(Icons.Rounded.DeleteSweep, "Clear All")
+                        }
+                    }
                 }
             )
         }
@@ -99,8 +128,8 @@ fun HistoryScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 displayHistory.forEach { (toolName, entries) ->
                     item(key = toolName) {
@@ -109,7 +138,7 @@ fun HistoryScreen(
                             entries = entries,
                             isExpanded = toolRouteFilter != null || viewModel.expandedTools.contains(toolName),
                             onToggle = { viewModel.toggleExpansion(toolName) },
-                            onDeleteEntry = { viewModel.deleteHistory(it) },
+                            onDeleteEntry = { entryToDelete = it },
                             onRestore = { entry ->
                                 val route = try {
                                     Json.decodeFromString<Route>(entry.toolRoute)
@@ -118,15 +147,17 @@ fun HistoryScreen(
                                 }
                                 if (route != null) {
                                     val restorationRoute = when (route) {
-                                        is Route.EmiCalculator -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.CompoundInterestCalculator -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.RecurringDepositCalculator -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.BmiCalculator -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.CalorieCalculator -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.IdealWeightCalculator -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.Emi -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.CompoundInterest -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.RecurringDeposit -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.Bmi -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.Calorie -> route.copy(restorationJson = entry.restorationJson)
+                                        is Route.Calculator.IdealWeight -> route.copy(restorationJson = entry.restorationJson)
                                         else -> route
                                     }
-                                    navigator.navigate(restorationRoute)
+                                    navigator.navigate(restorationRoute) {
+                                        popUpTo<Route.HistoryScreen> { inclusive = true }
+                                    }
                                 }
                             }
                         )
@@ -135,6 +166,28 @@ fun HistoryScreen(
             }
         }
     }
+
+    ConfirmationDialog(
+        show = showClearAllDialog,
+        onDismissRequest = { showClearAllDialog = false },
+        onConfirm = {
+            viewModel.clearAllHistory()
+            showClearAllDialog = false
+        },
+        title = "Clear All History?",
+        text = "This will remove all your calculation history. This action cannot be undone."
+    )
+
+    ConfirmationDialog(
+        show = entryToDelete != null,
+        onDismissRequest = { entryToDelete = null },
+        onConfirm = {
+            entryToDelete?.let { viewModel.deleteHistory(it) }
+            entryToDelete = null
+        },
+        title = "Delete Entry?",
+        text = "Are you sure you want to delete this calculation?"
+    )
 }
 
 @Composable
@@ -149,7 +202,7 @@ private fun HistoryGroupItem(
     val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
@@ -159,13 +212,13 @@ private fun HistoryGroupItem(
             Row(
                 modifier = Modifier
                     .clickable { onToggle() }
-                    .padding(16.dp),
+                    .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
@@ -173,31 +226,33 @@ private fun HistoryGroupItem(
                         imageVector = Icons.Rounded.History,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = toolName,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "${entries.size} calculations",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
                 Icon(
                     imageVector = Icons.Rounded.ExpandMore,
                     contentDescription = null,
-                    modifier = Modifier.rotate(rotation)
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(rotation)
                 )
             }
 
             AnimatedVisibility(visible = isExpanded) {
-                Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                Column(modifier = Modifier.padding(bottom = 4.dp)) {
                     entries.forEach { entry ->
                         HistoryEntryDetail(
                             entry = entry,
@@ -206,7 +261,7 @@ private fun HistoryGroupItem(
                         )
                         if (entry != entries.last()) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                             )
                         }
@@ -236,7 +291,7 @@ private fun HistoryEntryDetail(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -246,50 +301,49 @@ private fun HistoryEntryDetail(
             Text(
                 text = date,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
             )
-            IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
-                Icon(
-                    imageVector = Icons.Rounded.DeleteOutline,
-                    contentDescription = "Delete",
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = onRestore, modifier = Modifier.size(24.dp)) {
-                Icon(
-                    imageVector = Icons.Rounded.Restore,
-                    contentDescription = "Restore",
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onRestore, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Rounded.Restore,
+                        contentDescription = "Restore",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = "Delete",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Inputs
-        Text("Inputs", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-        inputs.forEach { (key, value) ->
-            Text(
-                text = "$key: $value",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Results
-        Text("Results", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)
-        results.forEach { (key, value) ->
-            Text(
-                text = "$key: $value",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Inputs & Results in a more compact way
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            inputs.forEach { (key, value) ->
+                Text(
+                    text = "$key: $value",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+            results.forEach { (key, value) ->
+                Text(
+                    text = "$key: $value",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }

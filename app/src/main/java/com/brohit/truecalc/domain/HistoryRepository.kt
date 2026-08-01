@@ -11,7 +11,18 @@ class HistoryRepository @Inject constructor(
     fun getAllHistory(): Flow<List<CalculationHistory>> = calculationHistoryDao.getAllHistory()
 
     suspend fun addHistory(history: CalculationHistory) {
-        calculationHistoryDao.insertHistory(history)
+        val existing = calculationHistoryDao.getHistoryByInputs(history.toolRoute, history.inputsJson)
+        if (existing != null) {
+            calculationHistoryDao.updateHistory(
+                existing.copy(
+                    resultsJson = history.resultsJson,
+                    restorationJson = history.restorationJson,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        } else {
+            calculationHistoryDao.insertHistory(history)
+        }
         calculationHistoryDao.pruneHistory(history.toolRoute, 100)
     }
 

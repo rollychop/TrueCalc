@@ -30,7 +30,7 @@ class CompoundInterestViewModel @Inject constructor(
     private val historyManager: HistoryManager
 ) : ViewModel() {
 
-    private val route: Route.CompoundInterestCalculator = savedStateHandle.toRoute()
+    private val route: Route.Calculator.CompoundInterest = savedStateHandle.toRoute()
     private val calculationType: String = route.calculationType
     val inputState = CompoundInterestInputState(calculationType)
     
@@ -84,7 +84,7 @@ class CompoundInterestViewModel @Inject constructor(
 
     private fun logCalculation(input: CompoundInterestInput, result: InvestmentResultState) {
         historyManager.log(
-            route = Route.CompoundInterestCalculator(input.type),
+            route = Route.Calculator.CompoundInterest(input.type),
             name = input.type,
             inputs = mapOf(
                 "Principal" to "₹${input.principal}",

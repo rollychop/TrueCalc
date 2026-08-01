@@ -65,7 +65,7 @@ fun BMICalculatorUI(
                 },
                 actions = {
                     IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.BmiCalculator() as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.Bmi() as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

@@ -33,7 +33,7 @@ class RecurringDepositViewModel @Inject constructor(
     val inputState = RecurringDepositInputState()
 
     init {
-        val route: Route.RecurringDepositCalculator = savedStateHandle.toRoute()
+        val route: Route.Calculator.RecurringDeposit = savedStateHandle.toRoute()
         val restorationJson = route.restorationJson
         if (!restorationJson.isNullOrEmpty()) {
             try {
@@ -86,7 +86,7 @@ class RecurringDepositViewModel @Inject constructor(
 
     private fun logCalculation(input: RecurringDepositInput, result: InvestmentResultState) {
         historyManager.log(
-            route = Route.RecurringDepositCalculator(),
+            route = Route.Calculator.RecurringDeposit(),
             name = "Recurring Deposit",
             inputs = mapOf(
                 "Installment" to "₹${input.principal}",

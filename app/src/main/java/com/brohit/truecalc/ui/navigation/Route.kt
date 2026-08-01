@@ -1,6 +1,7 @@
 package com.brohit.truecalc.ui.navigation
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 sealed class Route {
@@ -10,33 +11,38 @@ sealed class Route {
     @Serializable
     data object SearchScreen : Route()
 
-
     @Serializable
-    data class EmiCalculator(val restorationJson: String? = null) : Route()
+    sealed class Calculator : Route() {
+        @Serializable
+        @SerialName("EmiCalculator")
+        data class Emi(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("CompoundInterestCalculator")
+        data class CompoundInterest(
+            val calculationType: String,
+            val restorationJson: String? = null
+        ) : Calculator()
+
+        @Serializable
+        @SerialName("RecurringDepositCalculator")
+        data class RecurringDeposit(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("BmiCalculator")
+        data class Bmi(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("CalorieCalculator")
+        data class Calorie(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("IdealWeightCalculator")
+        data class IdealWeight(val restorationJson: String? = null) : Calculator()
+    }
 
     @Serializable
     data object EmiSettings : Route()
-
-    @Serializable
-    data class CompoundInterestCalculator(
-        val calculationType: String,
-        val restorationJson: String? = null
-    ) : Route()
-
-
-    @Serializable
-    data class RecurringDepositCalculator(val restorationJson: String? = null) : Route()
-
-    //health
-
-    @Serializable
-    data class BmiCalculator(val restorationJson: String? = null) : Route()
-
-    @Serializable
-    data class CalorieCalculator(val restorationJson: String? = null) : Route()
-
-    @Serializable
-    data class IdealWeightCalculator(val restorationJson: String? = null) : Route()
 
     @Serializable
     data object CategoriesScreen : Route()

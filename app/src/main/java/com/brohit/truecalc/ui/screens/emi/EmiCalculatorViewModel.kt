@@ -8,6 +8,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.brohit.truecalc.core.MathUtils.calculateInterestRate
 import com.brohit.truecalc.core.TextUtils.toFixed2
 import com.brohit.truecalc.core.TextUtils.toFixed2INR
@@ -96,7 +97,8 @@ class EmiCalculatorViewModel @Inject constructor(
     val inputState = EmiCalculatorInputState()
     
     init {
-        val restorationJson: String? = savedStateHandle["restorationJson"]
+        val route: Route.Calculator.Emi = savedStateHandle.toRoute()
+        val restorationJson: String? = route.restorationJson
         if (!restorationJson.isNullOrEmpty()) {
             try {
                 val data = Json.decodeFromString<Map<String, String>>(restorationJson)
@@ -148,7 +150,7 @@ class EmiCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(input: EmiInput, result: EmiCalculatorState) {
         historyManager.log(
-            route = Route.EmiCalculator(),
+            route = Route.Calculator.Emi(),
             name = "EMI Calculator",
             inputs = mapOf(
                 "Principal" to "₹${input.principal}",

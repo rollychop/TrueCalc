@@ -28,7 +28,7 @@ class BMICalculatorViewModel @Inject constructor(
     val inputState = BMIInputState()
     
     init {
-        val route: Route.BmiCalculator = savedStateHandle.toRoute()
+        val route: Route.Calculator.Bmi = savedStateHandle.toRoute()
         val restorationJson = route.restorationJson
         if (!restorationJson.isNullOrEmpty()) {
             try {
@@ -62,7 +62,7 @@ class BMICalculatorViewModel @Inject constructor(
 
     private fun logCalculation(weight: String, height: String, result: BMIResultState) {
         historyManager.log(
-            route = Route.BmiCalculator(),
+            route = Route.Calculator.Bmi(),
             name = "BMI Calculator",
             inputs = mapOf(
                 "Weight" to "$weight kg",

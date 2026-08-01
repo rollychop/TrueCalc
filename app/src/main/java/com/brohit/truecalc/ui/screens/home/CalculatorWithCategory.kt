@@ -44,31 +44,31 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "EMI Calculator",
                 "Calculate EMI payments",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.AttachMoney
             ),
             Calculator(
                 "Investment Calculator",
                 "Calculate investment growth",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.AutoMirrored.Filled.TrendingUp
             ),
             Calculator(
                 "Savings Calculator",
                 "Calculate savings goals",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Savings
             ),
             Calculator(
                 "Mortgage Calculator",
                 "Calculate mortgage payments",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Home
             ),
             Calculator(
                 "Compound Interest Calculator",
                 "Calculate compound interest",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.MonetizationOn
             )
         )
@@ -79,19 +79,19 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "BMI Calculator",
                 "Calculate your Body Mass Index",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Accessibility
             ),
             Calculator(
                 "Calorie Calculator",
                 "Estimate daily calorie needs",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Restaurant
             ),
             Calculator(
                 "Ideal Weight Calculator",
                 "Calculate your ideal weight",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Scale
             )
         )
@@ -102,37 +102,37 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "Currency Converter",
                 "Convert between currencies",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.CurrencyExchange
             ),
             Calculator(
                 "Temperature Converter",
                 "Convert between temperature units",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Thermostat
             ),
             Calculator(
                 "Area Converter",
                 "Convert between area units",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.CropSquare
             ),
             Calculator(
                 "Volume Converter",
                 "Convert between volume units",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Dehaze
             ),
             Calculator(
                 "Weight Converter",
                 "Convert between weight units",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.LineWeight
             ),
             Calculator(
                 "Length Converter",
                 "Convert between length units",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Straighten
             )
         )
@@ -143,25 +143,25 @@ val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "Percentage Calculator",
                 "Calculate percentages",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Percent
             ),
             Calculator(
                 "Ratio Calculator",
                 "Calculate ratios",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Timeline
             ),
             Calculator(
                 "Average Calculator",
                 "Calculate average",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Functions
             ),
             Calculator(
                 "Scientific Calculator",
                 "Perform scientific calculations",
-                Route.EmiCalculator(),
+                Route.Calculator.Emi(),
                 Icons.Filled.Science
             )
         )
@@ -175,31 +175,31 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             Calculator(
                 name = "EMI Calculator",
                 description = "Calculate EMI payments",
-                route = Route.EmiCalculator(),
+                route = Route.Calculator.Emi(),
                 icon = Icons.Filled.AttachMoney
             ),
             Calculator(
                 name = "Compound Interest",
                 description = "Calculates compound interest",
-                route = Route.CompoundInterestCalculator(calculationType = CalculationType.COMPOUND),
+                route = Route.Calculator.CompoundInterest(calculationType = CalculationType.COMPOUND),
                 icon = Icons.Filled.MonetizationOn
             ),
             Calculator(
                 name = "Simple Interest",
                 description = "Calculates simple interest",
-                route = Route.CompoundInterestCalculator(calculationType = CalculationType.SIMPLE),
+                route = Route.Calculator.CompoundInterest(calculationType = CalculationType.SIMPLE),
                 icon = Icons.Filled.Money
             ),
             Calculator(
                 name = "Fixed Deposit",
                 description = "Calculates fixed deposits",
-                route = Route.CompoundInterestCalculator(calculationType = CalculationType.FIXED),
+                route = Route.Calculator.CompoundInterest(calculationType = CalculationType.FIXED),
                 icon = Icons.Filled.AttachMoney
             ),
             Calculator(
                 name = "Recurring Deposit",
                 description = "Calculates recurring interest",
-                route = Route.RecurringDepositCalculator(),
+                route = Route.Calculator.RecurringDeposit(),
                 icon = Icons.Filled.Timeline
             ),
         )
@@ -210,19 +210,19 @@ val calculatorsWithCategories: List<CalculatorWithCategory> = listOf(
             Calculator(
                 "BMI Calculator",
                 "Calculate your Body Mass Index",
-                Route.BmiCalculator(),
+                Route.Calculator.Bmi(),
                 Icons.Filled.Accessibility
             ),
             Calculator(
                 "Calorie Calculator",
                 "Estimate daily calorie needs",
-                Route.CalorieCalculator(),
+                Route.Calculator.Calorie(),
                 Icons.Filled.Restaurant
             ),
             Calculator(
                 "Ideal Weight Calculator",
                 "Calculate your ideal weight",
-                Route.IdealWeightCalculator(),
+                Route.Calculator.IdealWeight(),
                 Icons.Filled.Scale
             )
         )

@@ -28,7 +28,7 @@ class CaloriesCalculatorViewModel @Inject constructor(
     val inputState = CaloriesInputState()
     
     init {
-        val route: Route.CalorieCalculator = savedStateHandle.toRoute()
+        val route: Route.Calculator.Calorie = savedStateHandle.toRoute()
         val restorationJson = route.restorationJson
         if (!restorationJson.isNullOrEmpty()) {
             try {
@@ -73,7 +73,7 @@ class CaloriesCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(age: String, gender: String, activity: String, result: CaloriesResultState) {
         historyManager.log(
-            route = Route.CalorieCalculator(),
+            route = Route.Calculator.Calorie(),
             name = "Calorie Calculator",
             inputs = mapOf(
                 "Age" to "$age years",

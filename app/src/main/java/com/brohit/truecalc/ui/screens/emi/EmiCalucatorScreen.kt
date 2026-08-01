@@ -69,7 +69,7 @@ fun LoanCalculatorUI(
                 navigationIcon = { BackIconButton(onClick = { navigator.navigateUp() }) },
                 actions = {
                     IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.EmiCalculator() as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.Emi() as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

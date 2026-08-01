@@ -27,28 +27,28 @@ fun NavGraphBuilder.createNavGraph(navigator: AppNavigator) {
         SearchScreen(navigator)
     }
 
-    composable<Route.EmiCalculator> {
+    composable<Route.Calculator.Emi> {
         EmiCalculatorScreen(navigator)
     }
     composable<Route.EmiSettings> {
         EmiSettingsScreen(navigator)
     }
 
-    composable<Route.CompoundInterestCalculator> {
+    composable<Route.Calculator.CompoundInterest> {
         CompoundInterestScreen(navigator)
     }
-    composable<Route.RecurringDepositCalculator> {
+    composable<Route.Calculator.RecurringDeposit> {
         RecurringDepositScreen(navigator)
     }
 
     //health screens
-    composable<Route.BmiCalculator> {
+    composable<Route.Calculator.Bmi> {
         BMICalculatorScreen(navigator)
     }
-    composable<Route.CalorieCalculator> {
+    composable<Route.Calculator.Calorie> {
         CaloriesCalculatorScreen(navigator)
     }
-    composable<Route.IdealWeightCalculator> {
+    composable<Route.Calculator.IdealWeight> {
         IdealWeightCalculatorScreen(navigator)
     }
 

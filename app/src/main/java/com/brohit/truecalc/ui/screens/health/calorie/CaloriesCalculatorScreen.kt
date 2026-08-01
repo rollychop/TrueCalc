@@ -74,7 +74,7 @@ fun CaloriesCalculatorUI(
                 },
                 actions = {
                     IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.CalorieCalculator() as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.Calorie() as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

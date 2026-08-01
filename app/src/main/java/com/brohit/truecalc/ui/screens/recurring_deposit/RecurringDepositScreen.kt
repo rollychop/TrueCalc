@@ -80,7 +80,7 @@ fun RecurringDepositUI(
                 },
                 actions = {
                     IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.RecurringDepositCalculator() as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.RecurringDeposit() as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

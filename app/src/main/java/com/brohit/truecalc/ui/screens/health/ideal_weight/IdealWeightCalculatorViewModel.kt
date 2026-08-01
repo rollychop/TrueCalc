@@ -28,7 +28,7 @@ class IdealWeightCalculatorViewModel @Inject constructor(
     val inputState = IdealWeightInputState()
     
     init {
-        val route: Route.IdealWeightCalculator = savedStateHandle.toRoute()
+        val route: Route.Calculator.IdealWeight = savedStateHandle.toRoute()
         val restorationJson = route.restorationJson
         if (!restorationJson.isNullOrEmpty()) {
             try {
@@ -61,7 +61,7 @@ class IdealWeightCalculatorViewModel @Inject constructor(
 
     private fun logCalculation(height: String, gender: String, result: IdealWeightResultState) {
         historyManager.log(
-            route = Route.IdealWeightCalculator(),
+            route = Route.Calculator.IdealWeight(),
             name = "Ideal Weight Calculator",
             inputs = mapOf(
                 "Height" to "$height cm",

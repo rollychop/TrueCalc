@@ -90,7 +90,7 @@ fun CompoundInterestUI(
                 actions = {
                     InvestmentToggleButton(inputState)
                     IconButton(onClick = {
-                        val routeStr = Json.encodeToString(Route.CompoundInterestCalculator(inputState.calculationType) as Route)
+                        val routeStr = Json.encodeToString(Route.Calculator.CompoundInterest(inputState.calculationType) as Route)
                         navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr))
                     }) {
                         Icon(Icons.Rounded.History, contentDescription = "History")

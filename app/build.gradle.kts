@@ -18,16 +18,16 @@ kotlin {
 
 android {
     namespace = "com.brohit.truecalc"
-    compileSdk = 36
+    compileSdk = 37
 
 
 
     defaultConfig {
         applicationId = "com.brohit.truecalc"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 4
-        versionName = "0.0.4"
+        targetSdk = 37
+        versionCode = 5
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

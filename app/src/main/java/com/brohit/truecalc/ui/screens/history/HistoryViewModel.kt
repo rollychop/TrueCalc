@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.brohit.truecalc.data.data_source.local.room.entity.CalculationHistory
 import com.brohit.truecalc.domain.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,6 +19,9 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val repository: HistoryRepository
 ) : ViewModel() {
+
+    private val _eventChannel = Channel<HistoryEvent>()
+    val events = _eventChannel.receiveAsFlow()
 
     val groupedHistory: StateFlow<Map<String, List<CalculationHistory>>> = repository.getAllHistory()
         .map { history ->
@@ -39,4 +44,15 @@ class HistoryViewModel @Inject constructor(
             repository.deleteHistory(id)
         }
     }
+
+    fun clearAllHistory() {
+        viewModelScope.launch {
+            repository.clearAllHistory()
+            _eventChannel.send(HistoryEvent.AllCleared)
+        }
+    }
+}
+
+sealed class HistoryEvent {
+    data object AllCleared : HistoryEvent()
 }

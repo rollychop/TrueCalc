@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.BuildConfig
 import com.brohit.truecalc.domain.ThemeMode
+import com.brohit.truecalc.ui.components.ConfirmationDialog
 import com.brohit.truecalc.ui.components.SettingsClickableItem
 import com.brohit.truecalc.ui.components.SettingsInfoItem
 import com.brohit.truecalc.ui.components.SettingsSectionHeader
@@ -185,49 +186,27 @@ fun SettingsScreen(
         )
     }
 
-    if (showClearFavoritesDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearFavoritesDialog = false },
-            title = { Text("Clear Favorites?") },
-            text = { Text("This will remove all your bookmarked tools. This action cannot be undone.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.clearFavorites()
-                        showClearFavoritesDialog = false
-                    }
-                ) {
-                    Text("Clear", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearFavoritesDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    ConfirmationDialog(
+        show = showClearFavoritesDialog,
+        onDismissRequest = { showClearFavoritesDialog = false },
+        onConfirm = {
+            viewModel.clearFavorites()
+            showClearFavoritesDialog = false
+        },
+        title = "Clear Favorites?",
+        text = "This will remove all your bookmarked tools. This action cannot be undone.",
+        confirmText = "Clear"
+    )
 
-    if (showClearHistoryDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearHistoryDialog = false },
-            title = { Text("Clear History?") },
-            text = { Text("This will reset all usage analytics and history. This action cannot be undone.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.clearHistory()
-                        showClearHistoryDialog = false
-                    }
-                ) {
-                    Text("Clear", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearHistoryDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    ConfirmationDialog(
+        show = showClearHistoryDialog,
+        onDismissRequest = { showClearHistoryDialog = false },
+        onConfirm = {
+            viewModel.clearHistory()
+            showClearHistoryDialog = false
+        },
+        title = "Clear History?",
+        text = "This will reset all usage analytics and history. This action cannot be undone.",
+        confirmText = "Clear"
+    )
 }

@@ -1,10 +1,10 @@
 package com.brohit.truecalc.ui.services
 
 import android.Manifest
-import android.app.Notification
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import com.brohit.truecalc.R
@@ -18,15 +18,14 @@ class FirebaseCloudMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
 
 
-        val notification: Notification.Builder =
-            Notification.Builder(
-                this,
-                NotificationHelper.OFFER_NOTIFICATION_CHANNEL_ID
-            )
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(message.notification?.title)
-                .setContentText(message.notification?.body)
-                .setAutoCancel(true)
+        val notification = NotificationCompat.Builder(
+            this,
+            NotificationHelper.OFFER_NOTIFICATION_CHANNEL_ID
+        )
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(message.notification?.title)
+            .setContentText(message.notification?.body)
+            .setAutoCancel(true)
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -44,7 +43,6 @@ class FirebaseCloudMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         println("FCM TOKEN BEING SAVED $token")
         getSharedPreferences("_", MODE_PRIVATE).edit { putString("fcm_token", token) }
-        super.onNewToken(token)
     }
 
     companion object {
