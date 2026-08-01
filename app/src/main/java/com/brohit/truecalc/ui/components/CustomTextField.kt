@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -37,12 +36,12 @@ fun CustomTextField(
     Column(modifier) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color(0xFF5D5D5D),
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 4.dp)
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(bottom = 4.dp, start = 4.dp)
         )
-        val textStyle = MaterialTheme.typography.headlineSmall
+        val textStyle = MaterialTheme.typography.bodyLarge
             .copy(fontWeight = FontWeight.Bold)
         BasicTextField(
             value = state.text,
@@ -56,10 +55,10 @@ fun CustomTextField(
                 }
                 .background(
                     if (state.showErrors()) MaterialTheme.colorScheme.errorContainer
-                    else Color(0xfff4f5fe),
+                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     MaterialTheme.shapes.medium
                 )
-                .padding(12.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             textStyle = textStyle,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions = keyboardOptions,
@@ -67,9 +66,9 @@ fun CustomTextField(
             decorationBox = @Composable { innerTextField ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(modifier = modifier) {
+                    Box(modifier = Modifier.weight(1f)) {
                         if (state.text.isEmpty()) {
                             Text(
                                 text = placeholder,
@@ -83,7 +82,7 @@ fun CustomTextField(
                     }
                     trailingContent?.let {
                         Box(
-                            modifier = Modifier.height(24.dp),
+                            modifier = Modifier.height(32.dp),
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             trailingContent.invoke()

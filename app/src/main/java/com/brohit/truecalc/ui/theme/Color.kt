@@ -12,22 +12,27 @@ val Pink40 = Color(0xFF7D5260)
 
 val Blue = Color(0xFF276feb)
 
+// New Premium Palette
+val BackgroundLight = Color(0xFFFAFBFC)
+val PrimaryBlue = Color(0xFF2563EB)
+val SurfaceWhite = Color(0xFFFFFFFF)
+val SuccessGreen = Color(0xFF22C55E)
+val WarningAmber = Color(0xFFF59E0B)
+val ErrorRed = Color(0xFFEF4444)
 
-val BluePrimary = Color(0xFF1E88E5)  // Vibrant Blue
-val BlueDark = Color(0xFF1565C0)      // Darker Shade for Depth
-val BlueLight = Color(0xFF64B5F6)     // Lighter Shade for Highlights
+// Tonal Pastel Backgrounds for Cards (Light)
+val TonalBlue = Color(0xFFEFF6FF)
+val TonalGreen = Color(0xFFF0FDF4)
+val TonalAmber = Color(0xFFFFFBEB)
+val TonalRed = Color(0xFFFEF2F2)
+val TonalPurple = Color(0xFFF5F3FF)
 
-val TealSecondary = Color(0xFF00897B) // Fresh Teal
-val TealDark = Color(0xFF00695C)      // Dark Teal
-val TealLight = Color(0xFF4DB6AC)     // Light Teal
+// Tonal Backgrounds for Cards (Dark)
+val TonalBlueDark = Color(0xFF1E293B)
+val TonalGreenDark = Color(0xFF064E3B)
+val TonalAmberDark = Color(0xFF451A03)
+val TonalRedDark = Color(0xFF450A0A)
+val TonalPurpleDark = Color(0xFF2E1065)
 
-val OrangeTertiary = Color(0xFFFF7043) // Accent Orange
-val OrangeDark = Color(0xFFE64A19)     // Darker for contrast
-
-val BackgroundLight = Color(0xFFF5F5F5)  // Light Gray Background
-val SurfaceLight = Color(0xFFFFFFFF)     // White Card Surface
-
-val TextPrimary = Color(0xFF212121) // Dark Gray for readability
-val TextSecondary = Color(0xFF757575) // Light Gray Text
-
-val ErrorRed = Color(0xFFD32F2F) // Red for errors
+val TextPrimary = Color(0xFF111827)
+val TextSecondary = Color(0xFF6B7280)

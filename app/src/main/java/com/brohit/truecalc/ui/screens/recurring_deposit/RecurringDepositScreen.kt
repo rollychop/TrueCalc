@@ -1,11 +1,6 @@
 package com.brohit.truecalc.ui.screens.recurring_deposit
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,29 +9,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -44,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.domain.model.CompoundingFrequency
 import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
+import com.brohit.truecalc.ui.components.BackIconButton
 import com.brohit.truecalc.ui.components.CustomTextField
 import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
@@ -51,7 +47,6 @@ import com.brohit.truecalc.ui.components.ResultRow
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
-import com.brohit.truecalc.ui.theme.Blue
 
 @Composable
 fun RecurringDepositScreen(
@@ -65,181 +60,209 @@ fun RecurringDepositScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurringDepositUI(
     navigator: AppNavigator,
     inputState: RecurringDepositInputState,
     state: InvestmentResultState
 ) {
-    Scaffold { innerPadding ->
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Recurring Deposit") },
+                navigationIcon = {
+                    BackIconButton(onClick = { navigator.navigateUp() })
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Description
+            Text(
+                text = "Plan your future by calculating exactly how much your monthly installments will grow over time.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Input Section
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                shape = MaterialTheme.shapes.large
             ) {
-                Text(
-                    text = "Recurring Deposit",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(onClick = { navigator.navigateUp() }) {
-                    Icon(Icons.Filled.Close, contentDescription = "Close")
-                }
-            }
-            // Installment Frequency
-            var isIntervalVisible by remember { mutableStateOf(false) }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .padding(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .clickable { isIntervalVisible = !isIntervalVisible }
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Installment Frequency",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.SemiBold
+                    ExpandableSelector(
+                        title = "Installment Frequency",
+                        options = RecurringInterval.entries,
+                        selectedOption = inputState.recurringInterval,
+                        onOptionSelected = { inputState.recurringInterval = it },
+                        optionTitleSelector = { it.label },
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                     )
-                    Text(
-                        inputState.recurringInterval.label,
-                        color = Blue
-                    )
-                }
-                AnimatedVisibility(isIntervalVisible) {
-                    Column {
-                        RecurringInterval.entries.forEach { interval ->
-                            Text(
-                                text = interval.label,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        inputState.recurringInterval = interval
-                                        isIntervalVisible = false
-                                    }
-                                    .padding(8.dp),
-                                color = if (interval == inputState.recurringInterval)
-                                    MaterialTheme.colorScheme.primary
-                                else LocalContentColor.current
-                            )
-                        }
-                    }
-                }
-            }
 
-            // Input Fields
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-
-                CustomTextField(
-                    state = inputState.principal,
-                    label = "Installment Amount (₹)",
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    visualTransformation = IndianCurrencyVisualTransformation,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Enter installment"
-                )
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CustomTextField(
-                        state = inputState.interestRate,
-                        label = "Annual Interest Rate (%)",
+                        state = inputState.principal,
+                        label = "Installment Amount",
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Rate"
+                        visualTransformation = IndianCurrencyVisualTransformation,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = "₹0.00"
                     )
-                    CustomTextField(
-                        state = inputState.time,
-                        label = "Time Period (${if (inputState.isTimeInYears) "Years" else "Months"})",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        trailingContent = {
-                            Text(
-                                text = if (inputState.isTimeInYears) "Year(s)" else "Month(s)",
-                                modifier = Modifier.clickable {
-                                    inputState.isTimeInYears = !inputState.isTimeInYears
-                                },
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelSmall,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        },
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Time"
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        CustomTextField(
+                            state = inputState.interestRate,
+                            label = "Interest Rate (%)",
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            modifier = Modifier.weight(1f),
+                            placeholder = "0.0%"
+                        )
+                        CustomTextField(
+                            state = inputState.time,
+                            label = "Time Period",
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            modifier = Modifier.weight(1f),
+                            placeholder = "0"
+                        )
+                    }
+
+                    // Unit Selector
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        SegmentedButton(
+                            selected = inputState.isTimeInYears,
+                            onClick = { inputState.isTimeInYears = true },
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            label = { Text("Years") }
+                        )
+                        SegmentedButton(
+                            selected = !inputState.isTimeInYears,
+                            onClick = { inputState.isTimeInYears = false },
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            label = { Text("Months") }
+                        )
+                    }
+
+                    ExpandableSelector(
+                        title = "Interest Payout",
+                        options = CompoundingFrequency.entries,
+                        selectedOption = inputState.compoundingFrequency,
+                        onOptionSelected = { inputState.compoundingFrequency = it },
+                        optionTitleSelector = { it.getLabelFor(CalculationType.FIXED) },
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                     )
                 }
             }
-            ExpandableSelector(
-                title = "Interest Payout Frequency",
-                options = CompoundingFrequency.entries,
-                selectedOption = inputState.compoundingFrequency,
-                onOptionSelected = {
-                    inputState.compoundingFrequency = it
-                },
-                optionTitleSelector = { it.getLabelFor(CalculationType.FIXED) },
-                containerColor = Color.White
-            )
 
-            // Results
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .border(1.dp, Color(0xFFD7D7D7), shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
+            // Results Section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (state.amount > 0)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    else
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                ),
+                shape = MaterialTheme.shapes.large
             ) {
-                Text("Calculations", style = MaterialTheme.typography.headlineSmall)
-                ResultRow("Final Amount", state.finalAmount)
-                ResultRow("Interest Earned", state.interestEarned)
-                ResultRow("Total Invested", state.totalInvestment)
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (state.amount > 0) {
+                        Text(
+                            text = "Estimated Maturity Amount",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = state.finalAmount,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.Calculate,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        )
+                        Text(
+                            text = "Enter details to calculate",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
 
-            // Chart
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                InvestmentBreakdownChart(
-                    totalAmount = state.amount,
-                    interest = state.interest,
-                    principal = state.principal,
-                    title = "Breakdown of Recurring Deposit",
-                    modifier = Modifier
-                )
+            if (state.amount > 0) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    shape = MaterialTheme.shapes.large,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        ResultRow("Total Invested", state.totalInvestment)
+                        ResultRow("Interest Earned", state.interestEarned, isLast = true)
+                    }
+                }
+
+                // Chart Section
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    shape = MaterialTheme.shapes.large,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        InvestmentBreakdownChart(
+                            totalAmount = state.amount,
+                            interest = state.interest,
+                            principal = state.principal,
+                            title = "RD Breakdown",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
+
+            Spacer(Modifier.height(32.dp))
         }
     }
 }
@@ -247,6 +270,20 @@ fun RecurringDepositUI(
 @Preview(showBackground = true)
 @Composable
 private fun RecurringDepositScreenPreview() {
+    RecurringDepositUI(
+        navigator = FakeAppNavigator,
+        inputState = RecurringDepositInputState(),
+        state = InvestmentResultState(
+            amount = 12600.0,
+            interest = 600.0,
+            principal = 12000.0
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RecurringDepositScreenEmptyPreview() {
     RecurringDepositUI(
         navigator = FakeAppNavigator,
         inputState = RecurringDepositInputState(),

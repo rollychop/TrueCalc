@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.brohit.truecalc.common.Constant
 import com.brohit.truecalc.common.Constant.DATA_STORE_NAME
 import com.brohit.truecalc.data.AppAnalyticsImpl
@@ -47,6 +49,31 @@ object AppModule {
     @Provides
     fun providesIoDispatcher() = Dispatchers.IO
 
+    private val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `favorite_tools_table` (" +
+                        "`route` TEXT NOT NULL, " +
+                        "`name` TEXT NOT NULL, " +
+                        "`description` TEXT NOT NULL, " +
+                        "`category` TEXT NOT NULL, " +
+                        "`timestamp` INTEGER NOT NULL, " +
+                        "PRIMARY KEY(`route`))"
+            )
+        }
+    }
+
+    private val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `tool_usage_table` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`route` TEXT NOT NULL, " +
+                        "`timestamp` INTEGER NOT NULL)"
+            )
+        }
+    }
+
     @Singleton
     @Provides
     fun providesAppDB(@ApplicationContext context: Context): AppDatabase {
@@ -54,7 +81,9 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "true_calc.db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .build()
     }
 
     @Singleton
@@ -145,6 +174,16 @@ object AppModule {
     fun providesFixedChargesRepository(
         appDatabase: AppDatabase
     ): FixedChargesRepository = FixedChargesRepository(appDatabase.fixedCharges())
+
+    @Provides
+    fun providesFavoriteToolDao(
+        appDatabase: AppDatabase
+    ) = appDatabase.favoriteTools()
+
+    @Provides
+    fun providesToolUsageDao(
+        appDatabase: AppDatabase
+    ) = appDatabase.toolUsage()
 
     @Provides
     fun providesSearchRepository(): SearchRepository = SearchRepositoryImpl()

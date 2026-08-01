@@ -28,6 +28,10 @@ data class CalculatorWithCategory(
     val calculators: List<Calculator>
 )
 
+fun Route.toCalculator(): Calculator? {
+    return calculatorsWithCategories.flatMap { it.calculators }.find { it.route == this }
+}
+
 @Suppress("unused")
 val calculatorsWithCategories1: List<CalculatorWithCategory> = listOf(
     CalculatorWithCategory(

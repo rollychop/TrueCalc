@@ -35,5 +35,20 @@ sealed class Route {
     @Serializable
     data object IdealWeightCalculator : Route()
 
+    @Serializable
+    data object CategoriesScreen : Route()
+
+    @Serializable
+    data object FavoritesScreen : Route()
+
+    @Serializable
+    data object HistoryScreen : Route()
+
+    @Serializable
+    data object SettingsScreen : Route()
+
+    @Serializable
+    data class CategoryDetail(val categoryName: String) : Route()
+
 
 }

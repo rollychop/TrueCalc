@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +39,7 @@ fun <T> ExpandableSelector(
     optionTitleSelector: (T) -> String = { it.toString() },
     selectedColor: Color = MaterialTheme.colorScheme.primary,
     trailingTextColor: Color = MaterialTheme.colorScheme.primary,
-    containerColor: Color = Color(0xfff4f5fe)
+    containerColor: Color? = null
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -49,7 +48,7 @@ fun <T> ExpandableSelector(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                containerColor,
+                containerColor ?: MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                 shape = shape
             )
             .padding(8.dp)
@@ -64,15 +63,17 @@ fun <T> ExpandableSelector(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF5D5D5D),
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 modifier = Modifier
             )
             Text(
                 text = optionTitleSelector.invoke(selectedOption),
                 color = trailingTextColor,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 modifier = Modifier
@@ -84,7 +85,7 @@ fun <T> ExpandableSelector(
                 imageVector = if (isVisible) Icons.Default.ExpandLess
                 else Icons.Default.ExpandMore,
                 contentDescription = "expand",
-                tint = LocalContentColor.current.copy(.5f)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -103,7 +104,9 @@ fun <T> ExpandableSelector(
                         color = if (option == selectedOption)
                             selectedColor
                         else
-                            LocalContentColor.current
+                            MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
                     )
                 }
             }
@@ -119,7 +122,7 @@ fun ExpandableSelectorPreview() {
         "Sedentary", "Light",
         "Moderate",
         "Active",
-        "Very Active asdf asdf asdf asdf asdf sdf"
+        "Very Active"
     )
     var selected by remember { mutableStateOf(options.last()) }
 

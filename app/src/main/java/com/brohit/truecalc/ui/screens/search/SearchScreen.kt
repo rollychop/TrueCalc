@@ -41,12 +41,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.domain.model.SearchRoute
 import com.brohit.truecalc.ui.navigation.AppNavigator
+import com.brohit.truecalc.ui.screens.favorites.FavoritesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     navigator: AppNavigator,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
+    favoritesViewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val query by viewModel.query
     val filteredRoutes = viewModel.allItems.collectAsStateWithLifecycle().value
@@ -70,7 +72,10 @@ fun SearchScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(filteredRoutes) { route ->
-                SearchItem(route = route, onClick = { navigator.navigate(route.route) })
+                SearchItem(route = route, onClick = { 
+                    favoritesViewModel.logUsage(route.route)
+                    navigator.navigate(route.route) 
+                })
             }
             item { Spacer(Modifier.imePadding()) }
         }

@@ -16,24 +16,20 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Blue,
+    primary = PrimaryBlue,
     secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BluePrimary,
-    secondary = TealSecondary,
-    tertiary = OrangeTertiary,
-
-    background = BackgroundLight,
-    surface = SurfaceLight,
+    primary = PrimaryBlue,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
+    background = BackgroundLight,
     onBackground = TextPrimary,
+    surface = SurfaceWhite,
     onSurface = TextPrimary,
-    error = ErrorRed
+    error = ErrorRed,
+    onError = Color.White
 )
 
 
