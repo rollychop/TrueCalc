@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,6 +49,7 @@ import com.brohit.truecalc.ui.components.SettingsClickableItem
 import com.brohit.truecalc.ui.components.SettingsInfoItem
 import com.brohit.truecalc.ui.components.SettingsSectionHeader
 import com.brohit.truecalc.ui.components.SettingsSwitchItem
+import com.brohit.truecalc.ui.utils.openUrl
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +57,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val isDynamicColorEnabled by viewModel.isDynamicColorEnabled.collectAsStateWithLifecycle()
 
@@ -140,10 +143,17 @@ fun SettingsScreen(
             )
 
             SettingsClickableItem(
+                title = "Source Code",
+                subtitle = "View project on GitHub",
+                icon = Icons.Rounded.Code,
+                onClick = { context.openUrl("https://github.com/rollychop/TrueCalc") }
+            )
+
+            SettingsClickableItem(
                 title = "Developer",
                 subtitle = "Built with ❤️ by Rohit",
                 icon = Icons.Rounded.Code,
-                onClick = { /* Could open GitHub profile */ }
+                onClick = { context.openUrl("https://github.com/rollychop") }
             )
         }
     }
