@@ -119,6 +119,9 @@ dependencies {
     //fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
+    //lottie
+    implementation(libs.lottie.compose)
+
     //in app update
     implementation(libs.app.update.ktx)
 
