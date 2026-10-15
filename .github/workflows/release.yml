@@ -1,0 +1,71 @@
+name: Release
+
+# Push a tag like v1.1.0 to build the signed GitHub APK (com.brohit.truecalc.github)
+# and publish it as a GitHub Release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HAS_PRIVATE_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Version from tag
+        run: |
+          echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          # Always increasing and above the Play build's base code.
+          echo "VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
+      # Optional: a private keystore from secrets replaces the committed public one.
+      - name: Use keystore from secrets
+        if: env.HAS_PRIVATE_KEYSTORE == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          {
+            echo "SIGNING_STORE_FILE=$RUNNER_TEMP/release.jks"
+            echo "SIGNING_STORE_PASSWORD=$STORE_PASSWORD"
+            echo "SIGNING_KEY_ALIAS=$KEY_ALIAS"
+            echo "SIGNING_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        run: ./gradlew :app:testPlayDebugUnitTest
+
+      - name: Build signed GitHub APK
+        run: |
+          ./gradlew :app:assembleGithubRelease \
+            -PversionName="$VERSION_NAME" -PversionCode="$VERSION_CODE"
+          mkdir -p dist
+          cp app/build/outputs/apk/github/release/app-github-release.apk \
+            "dist/TrueCalc-$VERSION_NAME.apk"
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: TrueCalc ${{ env.VERSION_NAME }}
+          generate_release_notes: true
+          files: |
+            dist/*.apk
+            dist/SHA256SUMS.txt

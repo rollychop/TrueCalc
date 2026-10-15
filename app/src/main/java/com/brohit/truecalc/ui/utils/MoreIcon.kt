@@ -3,6 +3,7 @@ package com.brohit.truecalc.ui.utils
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
+import com.brohit.truecalc.BuildConfig
 
 enum class MoreIcon(val label: String) {
     Rate("Leave feedback"),
@@ -12,7 +13,8 @@ enum class MoreIcon(val label: String) {
 
 
 fun MoreIcon.toIntent(context: Context): Intent {
-    val packageName = context.packageName
+    // The GitHub build has its own package id, so store links always use the Play package.
+    val packageName = BuildConfig.PLAY_PACKAGE
     return when (this) {
         MoreIcon.Rate -> Intent(Intent.ACTION_VIEW).apply {
             data = "market://details?id=$packageName".toUri()
@@ -28,7 +30,8 @@ fun MoreIcon.toIntent(context: Context): Intent {
         }
 
         MoreIcon.Update -> Intent(Intent.ACTION_VIEW).apply {
-            data = "market://details?id=$packageName".toUri()
+            data = if (BuildConfig.IS_PLAY_BUILD) "market://details?id=$packageName".toUri()
+            else BuildConfig.RELEASES_URL.toUri()
         }
     }
 }

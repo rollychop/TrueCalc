@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Distinct launcher name so the GitHub build is easy to tell apart from the Play build. -->
+    <string name="app_name">True Calc GH</string>
+</resources>

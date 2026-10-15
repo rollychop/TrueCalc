@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -26,10 +27,48 @@ android {
         applicationId = "com.brohit.truecalc"
         minSdk = 26
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.0.5"
+        // CI overrides these for GitHub releases: -PversionCode=… -PversionName=…
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 5
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "PLAY_PACKAGE", "\"com.brohit.truecalc\"")
+        buildConfigField(
+            "String", "RELEASES_URL", "\"https://github.com/rollychop/TrueCalc/releases/latest\""
+        )
+    }
+
+    signingConfigs {
+        // Signs the GitHub distribution. Uses CI secrets when set, else the committed keystore.
+        create("github") {
+            val props = Properties().apply {
+                val file = rootProject.file("keystore/github-keystore.properties")
+                if (file.exists()) file.inputStream().use { load(it) }
+            }
+            fun value(env: String, key: String): String? = System.getenv(env) ?: props.getProperty(key)
+            storeFile = rootProject.file(value("SIGNING_STORE_FILE", "storeFile") ?: "keystore/truecalc-github.jks")
+            storePassword = value("SIGNING_STORE_PASSWORD", "storePassword")
+            keyAlias = value("SIGNING_KEY_ALIAS", "keyAlias")
+            keyPassword = value("SIGNING_KEY_PASSWORD", "keyPassword")
+        }
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        // Google Play build: same package as the published app.
+        create("play") {
+            dimension = "distribution"
+            buildConfigField("Boolean", "IS_PLAY_BUILD", "true")
+        }
+        // GitHub Releases build: separate package, so it installs alongside the Play app.
+        create("github") {
+            dimension = "distribution"
+            applicationIdSuffix = ".github"
+            versionNameSuffix = "-github"
+            buildConfigField("Boolean", "IS_PLAY_BUILD", "false")
+            signingConfig = signingConfigs.getByName("github")
+        }
     }
 
     buildTypes {
