@@ -4,14 +4,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Functions
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.MaterialTheme
@@ -185,6 +192,118 @@ object ToolRegistry {
             icon = Icons.Filled.Scale,
             route = Route.Calculator.IdealWeight(),
             keywords = listOf("ideal body weight", "ibw", "healthy weight", "target weight", "devine"),
+        ),
+
+        // ---- Everyday ----
+        ToolSpec(
+            id = "calculator",
+            name = "Calculator",
+            description = "Basic and scientific calculator with a tape of recent results",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.Calculate,
+            route = Route.Calculator.Basic(),
+            keywords = listOf(
+                "basic calculator", "scientific calculator", "arithmetic", "add", "subtract",
+                "multiply", "divide", "plus", "minus", "sin", "cos", "tan", "log", "ln",
+                "square root", "power", "factorial", "pi", "math", "maths", "sum",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "percentage",
+            name = "Percentage",
+            description = "X% of Y, what percent, % change and adding or removing a percentage",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.Percent,
+            route = Route.Calculator.Percentage(),
+            keywords = listOf(
+                "percent", "%", "percent of", "what percent", "percentage change", "increase",
+                "decrease", "growth", "marks", "hike", "increment", "ratio",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "discount",
+            name = "Discount",
+            description = "Final price and savings, with stacked and flat discounts",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.LocalOffer,
+            route = Route.Calculator.Discount(),
+            keywords = listOf(
+                "sale", "offer", "off", "% off", "price after discount", "savings", "shopping",
+                "coupon", "deal", "markdown", "extra discount", "mrp",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "gst",
+            name = "GST Calculator",
+            description = "Add or remove GST with the CGST and SGST split",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.Receipt,
+            route = Route.Calculator.Gst(),
+            keywords = listOf(
+                "goods and services tax", "tax", "cgst", "sgst", "igst", "invoice", "inclusive",
+                "exclusive", "18%", "gst inclusive", "gst exclusive", "bill", "vat", "gst 2.0",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "split_bill",
+            name = "Split Bill & Tip",
+            description = "Share a bill between friends, with tip and round-up",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.Groups,
+            route = Route.Calculator.SplitBill(),
+            keywords = listOf(
+                "split", "tip", "restaurant", "dinner", "share bill", "per person", "friends",
+                "gratuity", "service charge", "divide bill", "party",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "age",
+            name = "Age Calculator",
+            description = "Exact age in years, months and days, and your next birthday",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.Cake,
+            route = Route.Calculator.Age(),
+            keywords = listOf(
+                "age", "birthday", "date of birth", "dob", "how old", "born", "years old",
+                "next birthday", "eligibility",
+            ),
+            isNew = true,
+        ),
+        ToolSpec(
+            id = "date_calc",
+            name = "Date Calculator",
+            description = "Days between dates, working days, and adding or subtracting days",
+            category = ToolCategory.Everyday,
+            icon = Icons.Filled.DateRange,
+            route = Route.Calculator.DateCalc(),
+            keywords = listOf(
+                "days between", "date difference", "working days", "business days", "add days",
+                "subtract days", "notice period", "due date", "countdown", "weeks", "months",
+                "calendar", "deadline",
+            ),
+            isNew = true,
+        ),
+
+        // ---- Convert ----
+        ToolSpec(
+            id = "unit_converter",
+            name = "Unit Converter",
+            description = "Length, weight, temperature, area, volume, speed, data and time",
+            category = ToolCategory.Convert,
+            icon = Icons.Filled.Straighten,
+            route = Route.Calculator.UnitConverter(),
+            keywords = listOf(
+                "convert", "conversion", "units", "length", "weight", "temperature", "area",
+                "volume", "speed", "data", "time", "km to miles", "kg to lb", "celsius",
+                "fahrenheit", "feet", "inch", "metre", "meter", "sq ft", "gaj", "bigha", "acre",
+                "hectare", "litre", "gallon", "mb", "gb", "guntha", "cent",
+            ),
+            isNew = true,
         ),
     )
 

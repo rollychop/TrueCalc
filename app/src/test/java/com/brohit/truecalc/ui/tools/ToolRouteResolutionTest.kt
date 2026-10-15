@@ -1,12 +1,14 @@
 package com.brohit.truecalc.ui.tools
 
 import com.brohit.truecalc.ui.navigation.Route
+import com.brohit.truecalc.ui.navigation.withRestorationJson
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlinx.serialization.json.Json
 
 /** Route → tool resolution, including the route JSON already stored in users' Room databases. */
 class ToolRouteResolutionTest {
@@ -54,6 +56,31 @@ class ToolRouteResolutionTest {
             ToolRegistry.byId("simple_interest")?.routeKey
         )
         assertEquals("{\"type\":\"BmiCalculator\"}", ToolRegistry.byId("bmi")?.routeKey)
+    }
+
+    @Test
+    fun everydayRoutes_haveStableKeys() {
+        assertEquals("{\"type\":\"BasicCalculator\"}", ToolRegistry.byId("calculator")?.routeKey)
+        assertEquals("{\"type\":\"PercentageCalculator\"}", ToolRegistry.byId("percentage")?.routeKey)
+        assertEquals("{\"type\":\"DiscountCalculator\"}", ToolRegistry.byId("discount")?.routeKey)
+        assertEquals("{\"type\":\"GstCalculator\"}", ToolRegistry.byId("gst")?.routeKey)
+        assertEquals("{\"type\":\"SplitBillCalculator\"}", ToolRegistry.byId("split_bill")?.routeKey)
+        assertEquals("{\"type\":\"UnitConverter\"}", ToolRegistry.byId("unit_converter")?.routeKey)
+        assertEquals("{\"type\":\"AgeCalculator\"}", ToolRegistry.byId("age")?.routeKey)
+        assertEquals("{\"type\":\"DateCalculator\"}", ToolRegistry.byId("date_calc")?.routeKey)
+    }
+
+    @Test
+    fun withRestorationJson_coversEveryRegisteredTool() {
+        val json = "{\"k\":\"v\"}"
+        ToolRegistry.all.forEach { tool ->
+            val restored = tool.route.withRestorationJson(json)
+            assertTrue("${tool.id} keeps its tool", restored.isSameTool(tool.route))
+            assertTrue(
+                "${tool.id} carries restorationJson",
+                Json.encodeToString(Route.serializer(), restored).contains("restorationJson"),
+            )
+        }
     }
 
     @Test

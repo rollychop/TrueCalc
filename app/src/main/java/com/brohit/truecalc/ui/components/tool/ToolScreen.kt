@@ -16,7 +16,8 @@ import kotlinx.serialization.json.Json
 /**
  * [ToolScaffold] wired for a registered tool: title from [tool], back via [navigator],
  * favourite toggle through [FavoritesViewModel] (keyed by the route JSON, as everywhere else),
- * and History filtered to this tool.
+ * and History filtered to this tool. Pass [scrollable] = false for a fixed full-height layout
+ * (see [ToolScaffold]).
  *
  * ```
  * ToolScreen(tool = ToolRegistry.byId("emi")!!, navigator = navigator,
@@ -30,6 +31,7 @@ fun ToolScreen(
     modifier: Modifier = Modifier,
     onReset: (() -> Unit)? = null,
     shareText: String? = null,
+    scrollable: Boolean = true,
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -59,6 +61,7 @@ fun ToolScreen(
         },
         onReset = onReset,
         shareText = shareText,
+        scrollable = scrollable,
         content = content,
     )
 }

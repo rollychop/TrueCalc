@@ -74,7 +74,7 @@ fun EmiCalculatorContent(
             state = inputState.principal,
             label = "Loan amount",
             currency = true,
-            decimal = false,
+            decimal = false, // the principal validator accepts whole rupees only
         )
         NumberField(
             state = inputState.interestRate,

@@ -21,7 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
-import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.brohit.truecalc.common.NumberInput
 import com.brohit.truecalc.domain.model.TextFieldState
 import com.brohit.truecalc.ui.theme.Spacing
 
@@ -30,11 +32,14 @@ import com.brohit.truecalc.ui.theme.Spacing
  *
  * - Decimal keyboard by default ([decimal] = false for whole numbers); input is filtered to
  *   digits and a single '.', and a ',' typed by locale keyboards becomes '.'.
- * - [currency] shows "₹ 12,34,567" grouping via [IndianCurrencyVisualTransformation] (whole
- *   rupees only, like the existing fields); [prefix] is ignored then because the transformation
- *   draws the ₹ itself.
+ * - [currency] shows "₹ 12,34,567.50" with Indian grouping via
+ *   [IndianGroupingVisualTransformation], allowing up to [CURRENCY_DECIMALS] decimals (paise);
+ *   pass [decimal] = false for whole rupees. [prefix] is ignored then because the
+ *   transformation draws the ₹ itself.
  * - [suffix] for units ("%", "yrs", "kg"). Inline error from [TextFieldState.getError], else
  *   [supportingText]. Trailing clear button while non-empty.
+ * - [allowNegative] keeps a single leading '-' (e.g. temperatures) and shows a "±" button,
+ *   since many numeric keyboards have no minus key; off by default.
  */
 @Composable
 fun NumberField(
@@ -50,12 +55,15 @@ fun NumberField(
     imeAction: ImeAction = ImeAction.Next,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     enabled: Boolean = true,
+    allowNegative: Boolean = false,
 ) {
     val prefixColor = MaterialTheme.colorScheme.onSurfaceVariant
     val visualTransformation: VisualTransformation = remember(currency, prefixColor) {
-        if (currency) IndianCurrencyVisualTransformation(prefixColor) else VisualTransformation.None
+        if (currency) IndianGroupingVisualTransformation(prefixColor = prefixColor) else VisualTransformation.None
     }
-    val allowDecimal = decimal && !currency
+    val allowDecimal = decimal
+    val maxDecimals = if (currency) CURRENCY_DECIMALS else Int.MAX_VALUE
+    val signToggle = allowNegative && !currency
     val isError = state.showErrors()
     val errorText = state.getError()?.takeIf { it.isNotBlank() }
     val helper = errorText ?: supportingText
@@ -63,7 +71,7 @@ fun NumberField(
     TextField(
         value = state.text,
         onValueChange = { raw ->
-            val filtered = filterNumberInput(raw, allowDecimal)
+            val filtered = NumberInput.filter(raw, allowDecimal, signToggle, maxDecimals)
             if (filtered != null) state.updateText(filtered)
         },
         modifier = modifier
@@ -76,6 +84,17 @@ fun NumberField(
         singleLine = true,
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum"),
         label = { Text(label) },
+        leadingIcon = if (signToggle) {
+            {
+                IconButton(
+                    onClick = { state.updateText(NumberInput.toggleSign(state.text)) },
+                    enabled = enabled,
+                    modifier = Modifier.semantics { contentDescription = "Toggle sign" },
+                ) {
+                    Text("±", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+        } else null,
         placeholder = placeholder?.let { { Text(it) } },
         prefix = if (!currency && prefix != null) {
             { Text(prefix) }
@@ -110,16 +129,8 @@ fun NumberField(
     )
 }
 
-/**
- * Keeps digits and (if [allowDecimal]) one '.', mapping ',' to '.'.
- * Returns null when the edit should be rejected (a second decimal point).
- */
-internal fun filterNumberInput(raw: String, allowDecimal: Boolean): String? {
-    val normalized = raw.replace(',', '.')
-    val kept = normalized.filter { it.isDigit() || (allowDecimal && it == '.') }
-    if (kept.count { it == '.' } > 1) return null
-    return kept
-}
+/** Decimal places allowed in [NumberField]'s currency mode (paise). */
+const val CURRENCY_DECIMALS = 2
 
 @ToolPreviews
 @Composable
@@ -127,9 +138,15 @@ private fun NumberFieldPreview() {
     ToolPreviewSurface {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
             NumberField(
-                state = TextFieldState().apply { updateText("1000000") },
+                state = TextFieldState().apply { updateText("1000000.5") },
                 label = "Loan amount",
                 currency = true,
+            )
+            NumberField(
+                state = TextFieldState().apply { updateText("-40") },
+                label = "Temperature",
+                suffix = "°C",
+                allowNegative = true,
             )
             NumberField(
                 state = TextFieldState().apply { updateText("8.5") },

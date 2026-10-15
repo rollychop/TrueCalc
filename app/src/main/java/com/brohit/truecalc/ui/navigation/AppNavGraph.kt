@@ -4,6 +4,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.brohit.truecalc.ui.screens.compund_interest.CompoundInterestScreen
+import com.brohit.truecalc.ui.screens.everyday.age.AgeCalculatorScreen
+import com.brohit.truecalc.ui.screens.everyday.calculator.CalculatorScreen
+import com.brohit.truecalc.ui.screens.everyday.date.DateCalculatorScreen
+import com.brohit.truecalc.ui.screens.everyday.discount.DiscountScreen
+import com.brohit.truecalc.ui.screens.everyday.gst.GstScreen
+import com.brohit.truecalc.ui.screens.everyday.percentage.PercentageScreen
+import com.brohit.truecalc.ui.screens.everyday.split_bill.SplitBillScreen
+import com.brohit.truecalc.ui.screens.convert.unit_converter.UnitConverterScreen
 import com.brohit.truecalc.ui.screens.emi.EmiCalculatorScreen
 import com.brohit.truecalc.ui.screens.emi.EmiSettingsScreen
 import com.brohit.truecalc.ui.screens.health.bmi.BMICalculatorScreen
@@ -48,6 +56,34 @@ fun NavGraphBuilder.createNavGraph(navigator: AppNavigator) {
     }
     composable<Route.Calculator.IdealWeight> {
         IdealWeightCalculatorScreen(navigator)
+    }
+
+    // everyday tools
+    composable<Route.Calculator.Basic> {
+        CalculatorScreen(navigator)
+    }
+    composable<Route.Calculator.Percentage> {
+        PercentageScreen(navigator)
+    }
+    composable<Route.Calculator.Discount> {
+        DiscountScreen(navigator)
+    }
+    composable<Route.Calculator.Gst> {
+        GstScreen(navigator)
+    }
+    composable<Route.Calculator.SplitBill> {
+        SplitBillScreen(navigator)
+    }
+    composable<Route.Calculator.Age> {
+        AgeCalculatorScreen(navigator)
+    }
+    composable<Route.Calculator.DateCalc> {
+        DateCalculatorScreen(navigator)
+    }
+
+    // converters
+    composable<Route.Calculator.UnitConverter> {
+        UnitConverterScreen(navigator)
     }
 
     composable<Route.HistoryScreen> { backStackEntry ->

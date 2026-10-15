@@ -71,7 +71,7 @@ fun CompoundInterestContent(
         NumberField(
             state = inputState.principal,
             label = if (type == CalculationType.FIXED) "Deposit amount" else "Principal amount",
-            prefix = "₹",
+            currency = true,
         )
         NumberField(
             state = inputState.interestRate,

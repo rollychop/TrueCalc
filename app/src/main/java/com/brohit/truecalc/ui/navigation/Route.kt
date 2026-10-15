@@ -39,6 +39,41 @@ sealed class Route {
         @Serializable
         @SerialName("IdealWeightCalculator")
         data class IdealWeight(val restorationJson: String? = null) : Calculator()
+
+        // Everyday tools pack
+
+        /** Basic / scientific calculator. */
+        @Serializable
+        @SerialName("BasicCalculator")
+        data class Basic(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("PercentageCalculator")
+        data class Percentage(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("DiscountCalculator")
+        data class Discount(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("GstCalculator")
+        data class Gst(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("SplitBillCalculator")
+        data class SplitBill(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("UnitConverter")
+        data class UnitConverter(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("AgeCalculator")
+        data class Age(val restorationJson: String? = null) : Calculator()
+
+        @Serializable
+        @SerialName("DateCalculator")
+        data class DateCalc(val restorationJson: String? = null) : Calculator()
     }
 
     @Serializable
@@ -66,5 +101,13 @@ fun Route.withRestorationJson(restorationJson: String): Route = when (this) {
     is Route.Calculator.Bmi -> copy(restorationJson = restorationJson)
     is Route.Calculator.Calorie -> copy(restorationJson = restorationJson)
     is Route.Calculator.IdealWeight -> copy(restorationJson = restorationJson)
+    is Route.Calculator.Basic -> copy(restorationJson = restorationJson)
+    is Route.Calculator.Percentage -> copy(restorationJson = restorationJson)
+    is Route.Calculator.Discount -> copy(restorationJson = restorationJson)
+    is Route.Calculator.Gst -> copy(restorationJson = restorationJson)
+    is Route.Calculator.SplitBill -> copy(restorationJson = restorationJson)
+    is Route.Calculator.UnitConverter -> copy(restorationJson = restorationJson)
+    is Route.Calculator.Age -> copy(restorationJson = restorationJson)
+    is Route.Calculator.DateCalc -> copy(restorationJson = restorationJson)
     else -> this
 }

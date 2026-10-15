@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -29,6 +30,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,6 +55,9 @@ import com.brohit.truecalc.ui.theme.TrueCalcTheme
  * use [ToolScreen], which wires favourite and history for a registered tool.
  *
  * @param shareText text to share; when null the Share item is disabled (e.g. no result yet).
+ * @param scrollable true (default) for the collapsing large bar over a scrolling column. False for
+ *   fixed layouts that fill the screen (e.g. a keypad): a small pinned top bar and a non-scrolling
+ *   column that gets the full remaining height, so children can use `Modifier.weight`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,56 +71,77 @@ fun ToolScaffold(
     onReset: (() -> Unit)? = null,
     shareText: String? = null,
     showShare: Boolean = true,
+    scrollable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = if (scrollable) {
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    } else {
+        TopAppBarDefaults.pinnedScrollBehavior()
+    }
     val context = LocalContext.current
+
+    val actions: @Composable RowScope.() -> Unit = {
+        if (onToggleFavorite != null) {
+            IconButton(onClick = onToggleFavorite) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                    contentDescription = if (isFavorite) "Remove from favourites" else "Add to favourites",
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        if (onHistory != null) {
+            IconButton(onClick = onHistory) {
+                Icon(Icons.Rounded.History, contentDescription = "History")
+            }
+        }
+        if (showShare || onReset != null) {
+            ToolOverflowMenu(
+                onShare = if (showShare && shareText != null) {
+                    { shareResult(context, title, shareText) }
+                } else null,
+                showShare = showShare,
+                onReset = onReset,
+            )
+        }
+    }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            LargeTopAppBar(
-                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                navigationIcon = { BackIconButton(onClick = onBack) },
-                actions = {
-                    if (onToggleFavorite != null) {
-                        IconButton(onClick = onToggleFavorite) {
-                            Icon(
-                                imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
-                                contentDescription = if (isFavorite) "Remove from favourites" else "Add to favourites",
-                                tint = if (isFavorite) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                    if (onHistory != null) {
-                        IconButton(onClick = onHistory) {
-                            Icon(Icons.Rounded.History, contentDescription = "History")
-                        }
-                    }
-                    if (showShare || onReset != null) {
-                        ToolOverflowMenu(
-                            onShare = if (showShare && shareText != null) {
-                                { shareResult(context, title, shareText) }
-                            } else null,
-                            showShare = showShare,
-                            onReset = onReset,
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
+            if (scrollable) {
+                LargeTopAppBar(
+                    title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    navigationIcon = { BackIconButton(onClick = onBack) },
+                    actions = actions,
+                    scrollBehavior = scrollBehavior,
+                )
+            } else {
+                TopAppBar(
+                    title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    navigationIcon = { BackIconButton(onClick = onBack) },
+                    actions = actions,
+                    scrollBehavior = scrollBehavior,
+                )
+            }
         },
     ) { innerPadding ->
+        val base = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .consumeWindowInsets(innerPadding)
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(Spacing.l),
+            modifier = if (scrollable) {
+                base
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(Spacing.l)
+            } else {
+                base.padding(Spacing.l)
+            },
             verticalArrangement = Arrangement.spacedBy(Spacing.l),
             content = content,
         )

@@ -55,7 +55,7 @@ fun RecurringDepositContent(
         NumberField(
             state = inputState.principal,
             label = "Installment amount",
-            prefix = "₹",
+            currency = true,
         )
         OptionPicker(
             label = "Installment frequency",
