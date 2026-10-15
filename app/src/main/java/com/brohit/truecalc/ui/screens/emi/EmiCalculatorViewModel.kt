@@ -9,12 +9,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.brohit.truecalc.core.MathUtils.calculateInterestRate
 import com.brohit.truecalc.core.TextUtils.toFixed2
 import com.brohit.truecalc.core.TextUtils.toFixed2INR
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
 import com.brohit.truecalc.domain.FixedChargesRepository
 import com.brohit.truecalc.domain.HistoryManager
+import com.brohit.truecalc.domain.calc.EmiCalc
+import com.brohit.truecalc.domain.calc.EmiCharge
 import com.brohit.truecalc.domain.model.TextFieldState
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
-import kotlin.math.pow
 
 class EmiCalculatorInputState {
     val principal = TextFieldState(
@@ -69,7 +69,12 @@ data class EmiCalculatorState(
     val ti: Double = 0.0,
     val tc: Double = 0.0,
     val eir: Double = 0.0,
+    /** Text for the Share action; null until there is a valid result. */
+    val shareText: String? = null,
 ) {
+    /** True when the inputs produced a usable installment. */
+    val hasResult: Boolean get() = mp > 0 && mp.isFinite()
+
     val monthlyPayment: String = mp.toFixed2INR()
     val totalPaid: String = tp.toFixed2INR()
     val totalInterest: String = ti.toFixed2INR()
@@ -110,6 +115,14 @@ class EmiCalculatorViewModel @Inject constructor(
                 // Ignore
             }
         }
+    }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() {
+        inputState.principal.reset()
+        inputState.interestRate.reset()
+        inputState.term.reset()
+        inputState.isTermInYears = true
     }
 
     val allFixedCharges: StateFlow<List<FixedCharge>> = repository.allFixedCharges
@@ -172,48 +185,28 @@ class EmiCalculatorViewModel @Inject constructor(
     }
 
     private fun calculateEmi(input: EmiInput): EmiCalculatorState {
-        val fixedCharges = input.fixedCharges
-
-        val principal = input.principal.toDoubleOrNull() ?: return EmiCalculatorState()
-        val nominalRate =
-            input.rate.toDoubleOrNull()?.div(12)?.div(100) ?: return EmiCalculatorState()
-        val term = input.term.toIntOrNull()?.let { if (input.isTermInYears) it * 12 else it }
-            ?: return EmiCalculatorState()
-
-        // Calculate Fixed Charges
-        val totalFixedCharges = fixedCharges.sumOf {
-            if (it.isPercentage) (it.amount / 100) * principal else it.amount
-        }
-
-        // Total Loan Amount (Principal + Fixed Charges)
-        val totalLoanAmount = principal + totalFixedCharges
-
-        if (nominalRate == 0.0) {
-            val monthlyPayment = totalLoanAmount / term
-            return EmiCalculatorState(
-                mp = monthlyPayment,
-                tp = totalLoanAmount,
-                ti = 0.0,
-                tc = totalFixedCharges,
-                eir = 0.0
-            )
-        }
-
-        // Standard EMI Calculation (Using Total Loan Amount)
-        val emi = (totalLoanAmount * nominalRate * (1 + nominalRate).pow(term.toDouble())) /
-                ((1 + nominalRate).pow(term.toDouble()) - 1)
-
-        val totalPaid = emi * term
-        val totalInterest = totalPaid - totalLoanAmount  // Interest paid on (Principal + Charges)
-
-        val eir = calculateInterestRate(principal, term, emi) ?: Double.NaN
-        return EmiCalculatorState(
-            mp = emi,
-            tp = totalPaid,
-            ti = totalInterest,
-            tc = totalFixedCharges,
-            eir = eir
+        val result = EmiCalc.calculate(
+            principal = input.principal,
+            rate = input.rate,
+            term = input.term,
+            isTermInYears = input.isTermInYears,
+            charges = input.fixedCharges.map { EmiCharge(amount = it.amount, isPercentage = it.isPercentage) }
         )
+        val state = EmiCalculatorState(
+            mp = result.monthlyPayment,
+            tp = result.totalPaid,
+            ti = result.totalInterest,
+            tc = result.totalCharges,
+            eir = result.effectiveInterestRate
+        )
+        return if (state.hasResult) state.copy(shareText = shareTextFor(input, state)) else state
+    }
+
+    private fun shareTextFor(input: EmiInput, state: EmiCalculatorState): String {
+        val principal = input.principal.toDoubleOrNull()?.toFixed2INR() ?: "₹${input.principal}"
+        val unit = if (input.isTermInYears) "years" else "months"
+        return "EMI ${state.monthlyPayment}/month for $principal at ${input.rate}% over " +
+                "${input.term} $unit (total interest ${state.totalInterest}) — via TrueCalc"
     }
 
 

@@ -19,7 +19,7 @@ The project follows **MVVM (Model-View-ViewModel)** with **Clean Architecture** 
 - **`domain/`**: Pure Kotlin logic. Interfaces for repositories, business models, and use cases (if applicable).
 - **`ui/`**: Jetpack Compose code. 
     - `screens/`: Feature-specific UI.
-    - `components/`: Reusable UI widgets (e.g., `CustomTextField`, `ResultRow`).
+    - `components/`: Reusable UI widgets (e.g., `ResultRow`); tool screens use `components/tool/` (`ToolScreen`, `NumberField`, `ResultHero`, …).
     - `navigation/`: Centralized routing in `AppNavGraph.kt`.
 - **`di/`**: Dagger Hilt modules.
 - **`core/`**: Critical math utilities (`MathUtils.kt`) and text processing.
@@ -56,3 +56,7 @@ Plan, model research (Cactus Needle 3) and a desktop trial kit live in [`docs/sm
 - `tools.json` is the tool contract; keep it in sync with calculators and their `restorationJson` keys.
 - `spike.py`'s `normalize()` is the reference for the future `core/QueryNormalizer.kt`.
 - The cloud container has no Android SDK/NDK: native/JNI work and on-device testing happen on the developer's machine.
+
+## 🎨 Planned: UI modernization & tool expansion
+Audit, design system, shared tool components and the prioritised tool list live in [`docs/ui-modernization/`](docs/ui-modernization/README.md).
+New tool screens must use the shared `ToolScaffold` components and theme tokens once Phase 1 lands; no hardcoded colours or one-off spacing.

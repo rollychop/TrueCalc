@@ -3,7 +3,8 @@ package com.brohit.truecalc.ui.screens.recurring_deposit
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.RecurringInterval
 import com.brohit.truecalc.domain.model.TextFieldState
 
 class RecurringDepositInputState {
@@ -35,4 +36,14 @@ class RecurringDepositInputState {
     )
 
     var compoundingFrequency by mutableStateOf(CompoundingFrequency.Quarterly)
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() {
+        principal.reset()
+        interestRate.reset()
+        time.reset()
+        recurringInterval = RecurringInterval.MONTHLY
+        isTimeInYears = true
+        compoundingFrequency = CompoundingFrequency.Quarterly
+    }
 }

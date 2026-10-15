@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
+import com.brohit.truecalc.domain.calc.ActivityLevel
+import com.brohit.truecalc.domain.calc.CalorieCalc
+import com.brohit.truecalc.domain.calc.Gender
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +46,9 @@ class CaloriesCalculatorViewModel @Inject constructor(
             }
         }
     }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() = inputState.reset()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<CaloriesResultState> = run {
@@ -101,30 +107,22 @@ class CaloriesCalculatorViewModel @Inject constructor(
         gender: String,
         activityLevel: String
     ): CaloriesResultState {
-        val age = ageText.toIntOrNull() ?: return CaloriesResultState()
-        val weight = weightText.toDoubleOrNull() ?: return CaloriesResultState()
-        val height = heightText.toDoubleOrNull() ?: return CaloriesResultState()
+        val activity = ActivityLevel.fromLabel(activityLevel)
+        val result = CalorieCalc.calculate(
+            age = ageText,
+            weight = weightText,
+            height = heightText,
+            gender = Gender.fromLabel(gender),
+            activity = activity
+        ) ?: return CaloriesResultState()
 
-        val bmr = if (gender == "Male") {
-            (10 * weight) + (6.25 * height) - (5 * age) + 5
-        } else {
-            (10 * weight) + (6.25 * height) - (5 * age) - 161
-        }
-
-        val activityFactor = when (activityLevel) {
-            "Sedentary" -> 1.2
-            "Lightly active" -> 1.375
-            "Moderately active" -> 1.55
-            "Very active" -> 1.725
-            "Extra active" -> 1.9
-            else -> 1.2
-        }
-
-        val calories = bmr * activityFactor
-
+        val calories = "%.0f".format(result.calories)
         return CaloriesResultState(
-            bmrValue = "%.2f".format(bmr),
-            caloriesNeeded = "%.0f".format(calories)
+            bmrValue = "%.2f".format(result.bmr),
+            caloriesNeeded = calories,
+            activityFactor = activity.factor,
+            shareText = "I need about $calories kcal a day to maintain my weight " +
+                    "(${activity.label.lowercase()}) — via TrueCalc"
         )
     }
 }

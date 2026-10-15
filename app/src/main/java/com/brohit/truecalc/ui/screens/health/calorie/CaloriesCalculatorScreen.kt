@@ -1,189 +1,107 @@
 package com.brohit.truecalc.ui.screens.health.calorie
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.brohit.truecalc.ui.components.BackIconButton
-import com.brohit.truecalc.ui.components.CustomTextField
-import com.brohit.truecalc.ui.components.ExpandableSelector
+import com.brohit.truecalc.domain.calc.ActivityLevel
+import com.brohit.truecalc.domain.calc.Gender
+import com.brohit.truecalc.ui.components.tool.BreakdownRow
+import com.brohit.truecalc.ui.components.tool.BreakdownSection
+import com.brohit.truecalc.ui.components.tool.InputSection
+import com.brohit.truecalc.ui.components.tool.NumberField
+import com.brohit.truecalc.ui.components.tool.OptionPicker
+import com.brohit.truecalc.ui.components.tool.ResultHero
+import com.brohit.truecalc.ui.components.tool.ToolInfo
+import com.brohit.truecalc.ui.components.tool.ToolPreviewColumn
+import com.brohit.truecalc.ui.components.tool.ToolPreviews
+import com.brohit.truecalc.ui.components.tool.ToolScreen
 import com.brohit.truecalc.ui.navigation.AppNavigator
-import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
-import com.brohit.truecalc.ui.theme.TrueCalcTheme
-import kotlinx.serialization.json.Json
+import com.brohit.truecalc.ui.tools.ToolRegistry
 
 @Composable
 fun CaloriesCalculatorScreen(
     navigator: AppNavigator,
     viewModel: CaloriesCalculatorViewModel = hiltViewModel()
 ) {
-    CaloriesCalculatorUI(
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ToolScreen(
+        tool = checkNotNull(ToolRegistry.forRoute(Route.Calculator.Calorie())),
         navigator = navigator,
-        inputState = viewModel.inputState,
-        state = viewModel.state.collectAsStateWithLifecycle().value
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CaloriesCalculatorUI(
-    navigator: AppNavigator,
-    inputState: CaloriesInputState,
-    state: CaloriesResultState
-) {
-    val activityLevels =
-        listOf("Sedentary", "Lightly active", "Moderately active", "Very active", "Extra active")
-    val genders = listOf("Male", "Female")
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Calories Calculator", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    BackIconButton(onClick = { navigator.navigateUp() })
-                },
-                actions = {
-                    IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.Calculator.Calorie() as Route)
-                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
-                    }) {
-                        Icon(Icons.Rounded.History, contentDescription = "History")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Spacer(Modifier.height(8.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                CustomTextField(
-                    state = inputState.age,
-                    label = "Age (years)",
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    placeholder = "Enter age",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CustomTextField(
-                        state = inputState.height,
-                        label = "Height (cm)",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        placeholder = "Height",
-                        modifier = Modifier.weight(1f)
-                    )
-                    CustomTextField(
-                        state = inputState.weight,
-                        label = "Weight (kg)",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        placeholder = "Weight",
-                        modifier = Modifier.weight(1f)
-
-                    )
-
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                ExpandableSelector(
-                    title = "Gender",
-                    options = genders,
-                    selectedOption = inputState.gender,
-                    onOptionSelected = {
-                        inputState.gender = it
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                ExpandableSelector(
-                    title = "Activity Level",
-                    options = activityLevels,
-                    selectedOption = inputState.activityLevel,
-                    onOptionSelected = { inputState.activityLevel = it }
-                )
-
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                Text("Results", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(8.dp))
-                Text("BMR: ${state.bmrValue} kcal/day", style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    "Calories Needed: ${state.caloriesNeeded} kcal/day",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
+        onReset = viewModel::reset,
+        shareText = state.shareText,
+    ) {
+        CaloriesCalculatorContent(inputState = viewModel.inputState, state = state)
     }
 }
 
-@Preview
 @Composable
-private fun CaloriesCalculatorScreenPreview() {
-    TrueCalcTheme {
-        CaloriesCalculatorUI(
-            navigator = FakeAppNavigator,
-            inputState = CaloriesInputState(),
-            state = CaloriesResultState()
+fun CaloriesCalculatorContent(
+    inputState: CaloriesInputState,
+    state: CaloriesResultState,
+) {
+    InputSection {
+        NumberField(state = inputState.age, label = "Age", suffix = "years", decimal = false)
+        OptionPicker(
+            label = "Gender",
+            options = Gender.entries.map { it.label },
+            selected = inputState.gender,
+            onSelect = { inputState.gender = it },
+        )
+        NumberField(state = inputState.height, label = "Height", suffix = "cm")
+        NumberField(state = inputState.weight, label = "Weight", suffix = "kg")
+        OptionPicker(
+            label = "Activity level",
+            options = ActivityLevel.entries.map { it.label },
+            selected = inputState.activityLevel,
+            onSelect = { inputState.activityLevel = it },
+        )
+    }
+
+    val hasResult = state.caloriesNeeded.isNotEmpty()
+    ResultHero(
+        label = "Maintenance calories",
+        value = if (hasResult) "${state.caloriesNeeded} kcal" else null,
+        caption = if (hasResult) "per day to keep your current weight" else null,
+        emptyText = "Enter age, height and weight to see your daily calories",
+    )
+
+    if (hasResult) {
+        BreakdownSection(
+            rows = listOf(
+                BreakdownRow("Basal metabolic rate (BMR)", "${state.bmrValue} kcal"),
+                BreakdownRow(
+                    "Activity factor (${inputState.activityLevel.lowercase()})",
+                    state.activityFactor?.let { "× $it" } ?: "–",
+                ),
+                BreakdownRow("Maintenance calories", "${state.caloriesNeeded} kcal", emphasized = true),
+            ),
+        )
+    }
+
+    ToolInfo(
+        formula = "BMR = 10 × weight + 6.25 × height − 5 × age + 5 (men) or − 161 (women)\n" +
+                "Calories = BMR × activity factor",
+        notes = "Mifflin-St Jeor equation with weight in kg and height in cm. Activity factors: " +
+                "sedentary 1.2, lightly active 1.375, moderately active 1.55, very active 1.725, " +
+                "extra active 1.9.",
+    )
+}
+
+@ToolPreviews
+@Composable
+private fun CaloriesCalculatorContentPreview() {
+    val inputState = CaloriesInputState().apply {
+        age.updateText("30")
+        height.updateText("175")
+        weight.updateText("70")
+    }
+    ToolPreviewColumn {
+        CaloriesCalculatorContent(
+            inputState = inputState,
+            state = CaloriesResultState(bmrValue = "1648.75", caloriesNeeded = "1979", activityFactor = 1.2),
         )
     }
 }

@@ -110,5 +110,103 @@
       },
       "required": ["height_cm"]
     }
+  },
+  {
+    "name": "calculate_percentage",
+    "description": "Percentages: x% of y, x is what percent of y, percent change from x to y, or y after adding/removing x%.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "mode": {"type": "string", "enum": ["percent_of", "what_percent", "change", "apply_change"], "default": "percent_of", "description": "percent_of: x% of y; what_percent: x as a percent of y; change: percent change from x to y; apply_change: x increased or decreased by y percent"},
+        "x": {"type": "number", "description": "percent_of: the percentage; what_percent: the part; change: the old value; apply_change: the starting value"},
+        "y": {"type": "number", "description": "percent_of: the number; what_percent: the whole; change: the new value; apply_change: the percentage to add or remove"},
+        "direction": {"type": "string", "enum": ["increase", "decrease"], "default": "increase", "description": "Only for apply_change"}
+      },
+      "required": ["x", "y"]
+    }
+  },
+  {
+    "name": "calculate_discount",
+    "description": "Final price and amount saved after a percentage discount, with an optional extra (stacked) discount and flat rupees off.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "price": {"type": "number", "description": "Original price in rupees", "exclusiveMinimum": 0},
+        "discount_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "extra_discount_percent": {"type": "number", "minimum": 0, "maximum": 100, "default": 0, "description": "Second discount applied on the already discounted price"},
+        "flat_off": {"type": "number", "minimum": 0, "default": 0, "description": "Flat rupees off after the percentages"}
+      },
+      "required": ["price", "discount_percent"]
+    }
+  },
+  {
+    "name": "calculate_gst",
+    "description": "Add GST to an amount or remove GST from a GST-inclusive amount, with the CGST/SGST split.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "amount": {"type": "number", "description": "Amount in rupees", "minimum": 0},
+        "rate": {"type": "number", "description": "GST rate in percent; GST 2.0 slabs from 22 Sep 2025: 0, 0.25, 3, 5, 18, 40", "minimum": 0, "maximum": 100, "default": 18},
+        "mode": {"type": "string", "enum": ["add", "remove"], "default": "add", "description": "add: amount is before GST; remove: amount already includes GST"}
+      },
+      "required": ["amount"]
+    }
+  },
+  {
+    "name": "split_bill",
+    "description": "Split a bill between people with an optional tip percentage.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "bill": {"type": "number", "description": "Bill amount in rupees", "minimum": 0},
+        "people": {"type": "integer", "minimum": 1, "default": 2},
+        "tip_percent": {"type": "number", "minimum": 0, "maximum": 100, "default": 0},
+        "round_up": {"type": "boolean", "default": false, "description": "Round each share up to a whole rupee"}
+      },
+      "required": ["bill", "people"]
+    }
+  },
+  {
+    "name": "convert_units",
+    "description": "Convert a value between units of length, weight, temperature, area (incl. sq ft, gaj, bigha, acre), volume, speed, data or time.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "value": {"type": "number"},
+        "category": {"type": "string", "enum": ["length", "weight", "temperature", "area", "volume", "speed", "data", "time"]},
+        "from_unit": {"type": "string", "enum": ["mm", "cm", "m", "km", "in", "ft", "yd", "mi", "nmi", "mg", "g", "kg", "quintal", "t", "tola", "oz", "lb", "st", "c", "f", "k", "cm2", "m2", "km2", "in2", "ft2", "yd2", "cent", "guntha", "bigha", "acre", "ha", "mi2", "ml", "l", "m3", "tsp", "tbsp", "floz", "cup", "pt", "gal", "galuk", "in3", "ft3", "mps", "kmph", "mph", "fps", "knot", "bit", "B", "KB", "MB", "GB", "TB", "KiB", "MiB", "GiB", "TiB", "ms", "s", "min", "h", "day", "week", "month", "year"], "description": "Unit id from the same category, e.g. km, lb, c (Celsius), f (Fahrenheit), ft2 (sq ft), yd2 (gaj), kmph, GB, h"},
+        "to_unit": {"type": "string", "enum": ["mm", "cm", "m", "km", "in", "ft", "yd", "mi", "nmi", "mg", "g", "kg", "quintal", "t", "tola", "oz", "lb", "st", "c", "f", "k", "cm2", "m2", "km2", "in2", "ft2", "yd2", "cent", "guntha", "bigha", "acre", "ha", "mi2", "ml", "l", "m3", "tsp", "tbsp", "floz", "cup", "pt", "gal", "galuk", "in3", "ft3", "mps", "kmph", "mph", "fps", "knot", "bit", "B", "KB", "MB", "GB", "TB", "KiB", "MiB", "GiB", "TiB", "ms", "s", "min", "h", "day", "week", "month", "year"]}
+      },
+      "required": ["value", "category", "from_unit", "to_unit"]
+    }
+  },
+  {
+    "name": "calculate_age",
+    "description": "Exact age in years, months and days from a date of birth, and the next birthday.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "date_of_birth": {"type": "string", "format": "date", "description": "YYYY-MM-DD"},
+        "as_of": {"type": "string", "format": "date", "description": "YYYY-MM-DD; today when omitted"}
+      },
+      "required": ["date_of_birth"]
+    }
+  },
+  {
+    "name": "calculate_dates",
+    "description": "Days (and working days) between two dates, or a date plus or minus some days, weeks, months or years.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "mode": {"type": "string", "enum": ["between", "add"], "default": "between"},
+        "start_date": {"type": "string", "format": "date", "description": "YYYY-MM-DD"},
+        "end_date": {"type": "string", "format": "date", "description": "YYYY-MM-DD; for between"},
+        "include_end_date": {"type": "boolean", "default": false},
+        "amount": {"type": "integer", "minimum": 0, "description": "For add"},
+        "unit": {"type": "string", "enum": ["days", "weeks", "months", "years"], "default": "days"},
+        "subtract": {"type": "boolean", "default": false}
+      },
+      "required": ["start_date"]
+    }
   }
 ]

@@ -36,10 +36,20 @@
 {"query": "healthy weight for my height 183cm", "expected": [{"name": "calculate_ideal_weight", "arguments": {"height_cm": 183}}]}
 {"query": "emi for 30 lakh at 8.4% for 20 years and also FD 1 lakh 7% 1 year", "expected": [{"name": "calculate_emi", "arguments": {"principal": 3000000, "annual_rate": 8.4, "tenure": 20}}, {"name": "calculate_fixed_deposit", "arguments": {"principal": 100000, "annual_rate": 7, "time": 1}}]}
 {"query": "bmi 80 kg 170 cm and ideal weight for 170 cm", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 80, "height_cm": 170}}, {"name": "calculate_ideal_weight", "arguments": {"height_cm": 170}}]}
+{"query": "price went up from 80 to 100, what is the percentage increase", "expected": [{"name": "calculate_percentage", "arguments": {"mode": "change", "x": 80, "y": 100}}]}
+{"query": "shirt mrp 1999 with 30% off final price", "expected": [{"name": "calculate_discount", "arguments": {"price": 1999, "discount_percent": 30}}]}
+{"query": "1000 rs item 20% off plus extra 10% off", "expected": [{"name": "calculate_discount", "arguments": {"price": 1000, "discount_percent": 20, "extra_discount_percent": 10}}]}
+{"query": "add 18% gst to 5000", "expected": [{"name": "calculate_gst", "arguments": {"amount": 5000, "rate": 18, "mode": "add"}}]}
+{"query": "remove gst from 1180 at 18 percent", "expected": [{"name": "calculate_gst", "arguments": {"amount": 1180, "rate": 18, "mode": "remove"}}]}
+{"query": "split 2400 between 4 people with 10% tip", "expected": [{"name": "split_bill", "arguments": {"bill": 2400, "people": 4, "tip_percent": 10}}]}
+{"query": "5 km in miles", "expected": [{"name": "convert_units", "arguments": {"value": 5, "category": "length", "from_unit": "km", "to_unit": "mi"}}]}
+{"query": "how old am i if born on 1990-05-15", "expected": [{"name": "calculate_age", "arguments": {"date_of_birth": "1990-05-15"}}]}
+{"query": "days between 2026-01-01 and 2026-03-31", "expected": [{"name": "calculate_dates", "arguments": {"mode": "between", "start_date": "2026-01-01", "end_date": "2026-03-31"}}]}
+{"query": "what date is 90 days after 2026-10-15", "expected": [{"name": "calculate_dates", "arguments": {"mode": "add", "start_date": "2026-10-15", "amount": 90, "unit": "days"}}]}
 {"query": "convert 100 usd to inr", "expected": []}
 {"query": "what is the weather in Mumbai", "expected": []}
-{"query": "what is 15% of 2400", "expected": []}
+{"query": "what is 15% of 2400", "expected": [{"name": "calculate_percentage", "arguments": {"mode": "percent_of", "x": 15, "y": 2400}}]}
 {"query": "tell me a joke", "expected": []}
 {"query": "set an alarm for 6 am", "expected": []}
-{"query": "convert 30 celsius to fahrenheit", "expected": []}
+{"query": "convert 30 celsius to fahrenheit", "expected": [{"name": "convert_units", "arguments": {"value": 30, "category": "temperature", "from_unit": "c", "to_unit": "f"}}]}
 {"query": "which mutual fund is best", "expected": []}

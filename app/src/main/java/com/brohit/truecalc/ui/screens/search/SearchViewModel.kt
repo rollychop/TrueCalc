@@ -1,12 +1,14 @@
 package com.brohit.truecalc.ui.screens.search
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brohit.truecalc.data.data_source.local.room.entity.CalculationHistory
 import com.brohit.truecalc.domain.SearchRepository
-import com.brohit.truecalc.domain.model.SearchRoute
+import com.brohit.truecalc.domain.UsageRepository
+import com.brohit.truecalc.ui.tools.ToolRegistry
+import com.brohit.truecalc.ui.tools.ToolSpec
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,27 +16,38 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val repository: SearchRepository
+    private val repository: SearchRepository,
+    usageRepository: UsageRepository,
 ) : ViewModel() {
 
     var query = mutableStateOf(TextFieldValue(""))
     private var searchJob: Job? = null
 
-    private val _filteredRoutes = MutableStateFlow<List<SearchRoute>>(emptyList())
-    val filteredRoutes = _filteredRoutes.asStateFlow()
+    /** Tools matching the query, best match first ([ToolRegistry.search]). */
+    private val _filteredTools = MutableStateFlow<List<ToolSpec>>(emptyList())
+    val filteredTools = _filteredTools.asStateFlow()
 
     private val _filteredHistory = MutableStateFlow<List<CalculationHistory>>(emptyList())
     val filteredHistory = _filteredHistory.asStateFlow()
 
-    private val _suggestedTools = MutableStateFlow<List<SearchRoute>>(emptyList())
-    val suggestedTools = _suggestedTools.asStateFlow()
+    /** Most used tools, or the first few registered tools before anything has been used. */
+    val suggestedTools: StateFlow<List<ToolSpec>> = usageRepository.getMostUsed(SUGGESTION_QUERY_LIMIT)
+        .map { routes ->
+            ToolRegistry.forRouteKeys(routes, SUGGESTION_LIMIT)
+                .ifEmpty { ToolRegistry.all.take(SUGGESTION_LIMIT) }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            ToolRegistry.all.take(SUGGESTION_LIMIT)
+        )
 
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
@@ -43,16 +56,7 @@ class SearchViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        loadSuggestions()
         filter(query.value)
-    }
-
-    private fun loadSuggestions() {
-        viewModelScope.launch {
-            repository.getMostUsedRoutes(5).collect { routes ->
-                _suggestedTools.value = routes
-            }
-        }
     }
 
     fun filter(input: TextFieldValue) {
@@ -63,20 +67,14 @@ class SearchViewModel @Inject constructor(
             if (text.isNotBlank()) {
                 _isSearching.value = true
                 delay(300L)
-                launch {
-                    repository.searchRoutes(text).collect { routes ->
-                        _filteredRoutes.value = routes
-                    }
-                }
-                launch {
-                    repository.searchCalculationHistory(text).collect { history ->
-                        _filteredHistory.value = history
-                        _isSearching.value = false
-                    }
+                _filteredTools.value = ToolRegistry.search(text)
+                repository.searchCalculationHistory(text).collect { history ->
+                    _filteredHistory.value = history
+                    _isSearching.value = false
                 }
             } else {
                 _isSearching.value = false
-                _filteredRoutes.value = emptyList()
+                _filteredTools.value = emptyList()
                 _filteredHistory.value = emptyList()
             }
         }
@@ -98,5 +96,10 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             repository.clearRecentQueries()
         }
+    }
+
+    private companion object {
+        const val SUGGESTION_LIMIT = 5
+        const val SUGGESTION_QUERY_LIMIT = 10
     }
 }

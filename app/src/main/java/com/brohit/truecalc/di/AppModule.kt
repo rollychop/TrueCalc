@@ -222,8 +222,7 @@ object AppModule {
     fun providesSearchRepository(
         dataStore: DataStore<androidx.datastore.preferences.core.Preferences>,
         calculationHistoryDao: com.brohit.truecalc.data.data_source.local.room.dao.CalculationHistoryDao,
-        toolUsageDao: com.brohit.truecalc.data.data_source.local.room.dao.ToolUsageDao
-    ): SearchRepository = SearchRepositoryImpl(dataStore, calculationHistoryDao, toolUsageDao)
+    ): SearchRepository = SearchRepositoryImpl(dataStore, calculationHistoryDao)
 
     @Provides
     fun providesGithubApi(okHttpClient: OkHttpClient): GitHubApi {

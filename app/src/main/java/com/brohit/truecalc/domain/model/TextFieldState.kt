@@ -3,6 +3,7 @@ package com.brohit.truecalc.domain.model
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -73,15 +74,28 @@ fun textFieldStateSaver(state: TextFieldState) = listSaver<TextFieldState, Any>(
     }
 )
 
-val TextFileStateSaver = textFieldStateSaver(TextFieldState())
-
+/**
+ * A [TextFieldState] that survives configuration changes. Each call gets its own saver, so several
+ * fields on one screen restore into separate instances (with their validators).
+ */
 @Composable
 fun rememberTextFieldState(
     validator: (String) -> Boolean = { true },
     errorFor: (String) -> String = { "" },
     maxChar: Int = Int.MAX_VALUE
 ): TextFieldState {
-    return rememberSaveable(saver = TextFileStateSaver) {
+    val saver = remember(validator, errorFor, maxChar) {
+        listSaver<TextFieldState, Any>(
+            save = { listOf(it.text, it.isFocusedDirty) },
+            restore = {
+                TextFieldState(validator, errorFor, maxChar).apply {
+                    updateText(it[0] as String)
+                    isFocusedDirty = it[1] as Boolean
+                }
+            }
+        )
+    }
+    return rememberSaveable(saver = saver) {
         TextFieldState(validator, errorFor, maxChar)
     }
 }

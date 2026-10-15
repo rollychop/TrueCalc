@@ -6,10 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.RecurringDepositCalc
+import com.brohit.truecalc.domain.calc.RecurringInterval
+import com.brohit.truecalc.core.TextUtils.toFixed2INR
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
+import com.brohit.truecalc.ui.screens.compund_interest.getLabelFor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,7 +25,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
-import kotlin.math.pow
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,6 +56,9 @@ class RecurringDepositViewModel @Inject constructor(
             }
         }
     }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() = inputState.reset()
 
     private val stateFlow: StateFlow<InvestmentResultState> = kotlin.run {
         val interval = snapshotFlow { inputState.recurringInterval }
@@ -112,40 +118,28 @@ class RecurringDepositViewModel @Inject constructor(
     }
 
     private fun calculateRecurringDeposit(input: RecurringDepositInput): InvestmentResultState {
-        val interval = input.interval
-        val principal = input.principal.toDoubleOrNull() ?: return InvestmentResultState()
-        val rate = input.rate.toDoubleOrNull()?.div(100) ?: return InvestmentResultState()
-        val timeInput = input.time.toDoubleOrNull() ?: return InvestmentResultState()
-        val n = input.compoundingFrequency.timesPerYear
-
-        // Convert total time in years
-        val timeInYears = if (input.isTimeInYears) timeInput else timeInput / 12
-
-        val ppy =
-            interval.paymentsPerYear // payments per year based on user interval (monthly, weekly, etc.)
-
-        // Total number of installments
-        val totalInstallments = (timeInYears * ppy).toInt()
-
-        val r = rate / n // rate per compounding period
-
-        // Effective interest calculation
-        val onePlusR = 1 + r
-        val factor = onePlusR.pow(n * timeInYears)
-        val top = factor - 1
-        val bottom = onePlusR.pow(-1.0 * n / ppy)
-
-        val maturityAmount = principal * (top / (1 - bottom))
-        val totalInvested = principal * totalInstallments
-        val interest = maturityAmount - totalInvested
-
-        return InvestmentResultState(
-            amount = maturityAmount,
-            interest = interest,
-            principal = totalInvested
+        val result = RecurringDepositCalc.calculate(
+            installment = input.principal,
+            rate = input.rate,
+            time = input.time,
+            isTimeInYears = input.isTimeInYears,
+            interval = input.interval,
+            frequency = input.compoundingFrequency
         )
+        val state = InvestmentResultState(
+            amount = result.amount,
+            interest = result.interest,
+            principal = result.principal
+        )
+        return if (state.hasResult) state.copy(shareText = shareTextFor(input, state)) else state
     }
 
-
+    private fun shareTextFor(input: RecurringDepositInput, state: InvestmentResultState): String {
+        val installment = input.principal.toDoubleOrNull()?.toFixed2INR() ?: "₹${input.principal}"
+        val unit = if (input.isTimeInYears) "years" else "months"
+        return "Recurring deposit: $installment ${input.interval.label.lowercase()} at ${input.rate}% " +
+                "for ${input.time} $unit matures to ${state.finalAmount} " +
+                "(invested ${state.totalInvestment}, interest ${state.interestEarned}) — via TrueCalc"
+    }
 }
 

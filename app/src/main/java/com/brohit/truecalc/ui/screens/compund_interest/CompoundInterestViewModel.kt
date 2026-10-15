@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.InterestCalc
+import com.brohit.truecalc.domain.calc.InterestResult
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +22,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
-import kotlin.math.pow
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,6 +52,9 @@ class CompoundInterestViewModel @Inject constructor(
             }
         }
     }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() = inputState.reset()
 
     private val stateFlow: StateFlow<InvestmentResultState> = kotlin.run {
         val type = snapshotFlow { inputState.calculationType }
@@ -108,37 +112,36 @@ class CompoundInterestViewModel @Inject constructor(
     }
 
     private fun calculateCompoundInterest(input: CompoundInterestInput): InvestmentResultState {
-        val principal = input.principal.toDoubleOrNull() ?: return InvestmentResultState()
-        val rate = input.rate.toDoubleOrNull()?.div(100) ?: return InvestmentResultState()
-        val timeInput = input.time.toDoubleOrNull() ?: return InvestmentResultState()
-        val frequency = input.compoundingFrequency.timesPerYear
+        val result = when (input.type) {
+            CalculationType.COMPOUND -> InterestCalc.compound(
+                input.principal, input.rate, input.time, input.isTimeInYears, input.compoundingFrequency
+            )
 
-        // Convert time to years if it's given in months
-        val timeInYears = if (input.isTimeInYears) timeInput else timeInput / 12
+            CalculationType.FIXED -> InterestCalc.fixedDeposit(
+                input.principal, input.rate, input.time, input.isTimeInYears, input.compoundingFrequency
+            )
 
-        val amount: Double
-        val interest: Double
-        when (input.type) {
-            CalculationType.COMPOUND, CalculationType.FIXED -> {
-                amount = principal * (1 + rate / frequency).pow(frequency * timeInYears)
-                interest = amount - principal
-            }
+            CalculationType.SIMPLE -> InterestCalc.simple(
+                input.principal, input.rate, input.time, input.isTimeInYears
+            )
 
-            CalculationType.SIMPLE -> {
-                interest = principal * rate * timeInYears
-                amount = interest + principal
-            }
-
-            else -> return InvestmentResultState()
+            else -> InterestResult.Empty
         }
-
-        return InvestmentResultState(
-            amount = amount,
-            interest = interest,
-            principal = principal
+        val state = InvestmentResultState(
+            amount = result.amount,
+            interest = result.interest,
+            principal = result.principal
         )
+        return if (state.hasResult) state.copy(shareText = shareTextFor(input, state)) else state
     }
 
-
+    private fun shareTextFor(input: CompoundInterestInput, state: InvestmentResultState): String {
+        val unit = if (input.isTimeInYears) "years" else "months"
+        val frequency = if (input.type == CalculationType.SIMPLE) ""
+        else " (${input.compoundingFrequency.getLabelFor(input.type).lowercase()})"
+        return "${input.type}: ${state.totalInvestment} at ${input.rate}%$frequency for " +
+                "${input.time} $unit grows to ${state.finalAmount} " +
+                "(interest ${state.interestEarned}) — via TrueCalc"
+    }
 }
 

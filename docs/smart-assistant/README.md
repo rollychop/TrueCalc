@@ -95,9 +95,20 @@ Use the keys the ViewModels already read from `restorationJson`:
 | `calculate_bmi` | `Bmi` | `weight`, `height` |
 | `calculate_daily_calories` | `Calorie` | `age`, `weight`, `height`, `gender`, `activity` |
 | `calculate_ideal_weight` | `IdealWeight` | `height`, `gender` |
+| `calculate_percentage` | `Percentage` | `mode`, `first` (= `x`), `second` (= `y`), `direction` |
+| `calculate_discount` | `Discount` | `price`, `discount`, `secondDiscount` (= `extra_discount_percent`), `flatOff` |
+| `calculate_gst` | `Gst` | `amount`, `rate`, `mode` |
+| `split_bill` | `SplitBill` | `bill`, `people`, `tip` (= `tip_percent`), `roundUp` (`"true"`/`"false"`) |
+| `convert_units` | `UnitConverter` | `category`, `from`, `to`, `value` |
+| `calculate_age` | `Age` | `dob`, `asOf` (ISO `YYYY-MM-DD`) |
+| `calculate_dates` | `DateCalc` | `mode`, `start`, `end`, `includeEnd`, `amount`, `unit`, `subtract` |
+
+The basic calculator (`Route.Calculator.Basic`, keys `expression`, `scientific`, `angle`) has no
+tool: free-form arithmetic is better typed than parsed.
 
 Enum values in `tools.json` match the app's own values (`CompoundingFrequency`, `RecurringInterval`,
-`"Male"/"Female"`, the calorie activity labels), so they can be passed through without conversion.
+`"Male"/"Female"`, the calorie activity labels, and the everyday tools' `mode`/`unit`/category
+keys and unit ids from `domain/calc`), so they can be passed through without conversion.
 
 ---
 
@@ -105,8 +116,8 @@ Enum values in `tools.json` match the app's own values (`CompoundingFrequency`, 
 
 ### Phase 0: desktop trial (about 1 day, no Android needed)
 Files in this folder:
-- `tools.json`: the 8 tools, in Needle/OpenAI function format
-- `test_queries.jsonl`: 45 queries (37 tool calls including 2 multi-call, 8 off-topic refusals)
+- `tools.json`: the 15 tools, in Needle/OpenAI function format
+- `test_queries.jsonl`: 55 queries (50 tool calls including 2 multi-call, 5 off-topic refusals)
 - `spike.py`: runs the model, scores the calls, prints accuracy, confidence buckets and latency
 
 ```sh

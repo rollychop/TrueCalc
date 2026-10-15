@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
+import com.brohit.truecalc.domain.calc.Gender
+import com.brohit.truecalc.domain.calc.IdealWeightCalc
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +42,9 @@ class IdealWeightCalculatorViewModel @Inject constructor(
             }
         }
     }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() = inputState.reset()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<IdealWeightResultState> = run {
@@ -81,22 +86,12 @@ class IdealWeightCalculatorViewModel @Inject constructor(
         heightText: String,
         gender: String
     ): IdealWeightResultState {
-        val heightCm = heightText.toDoubleOrNull() ?: return IdealWeightResultState()
-
-        // Convert cm to inches
-        val heightInches = heightCm / 2.54
-        val baseHeightInches = 60.0  // 5 feet = 60 inches
-
-        val extraInches = (heightInches - baseHeightInches).coerceAtLeast(0.0)
-
-        val idealWeight = if (gender == "Male") {
-            50.0 + (2.3 * extraInches)
-        } else {
-            45.5 + (2.3 * extraInches)
-        }
-
+        val idealWeight = IdealWeightCalc.calculate(heightText, Gender.fromLabel(gender))
+            ?: return IdealWeightResultState()
+        val value = "%.2f".format(idealWeight)
         return IdealWeightResultState(
-            idealWeight = "%.2f".format(idealWeight)
+            idealWeight = value,
+            shareText = "My ideal body weight is $value kg at $heightText cm — via TrueCalc"
         )
     }
 }
