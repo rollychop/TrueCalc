@@ -50,3 +50,9 @@ To maintain context efficiency, delegate "noisy" or implementation-heavy tasks t
 - Keep the `MainActivity.kt` clean; it handles app-level logic like updates.
 - Always check `Constant.kt` for shared values.
 - Verify `MathUtils.kt` before implementing new calculation logic to avoid duplication.
+
+## 🔮 Planned: Smart Assistant (on-device natural language)
+Plan, model research (Cactus Needle 3) and a desktop trial kit live in [`docs/smart-assistant/`](docs/smart-assistant/README.md).
+- `tools.json` is the tool contract; keep it in sync with calculators and their `restorationJson` keys.
+- `spike.py`'s `normalize()` is the reference for the future `core/QueryNormalizer.kt`.
+- The cloud container has no Android SDK/NDK: native/JNI work and on-device testing happen on the developer's machine.

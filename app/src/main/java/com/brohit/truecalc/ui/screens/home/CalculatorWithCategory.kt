@@ -29,11 +29,19 @@ data class CalculatorWithCategory(
 )
 
 fun Route.toCalculator(): Calculator? {
-    return calculatorsWithCategories.flatMap { it.calculators }.find { 
-        val otherRoute = it.route
-        // Simple comparison ignoring parameters for identification
-        otherRoute::class == this::class
+    return calculatorsWithCategories.flatMap { it.calculators }.find { it.route.isSameTool(this) }
+}
+
+/**
+ * Identifies the tool a route points to, ignoring restoration state.
+ * CompoundInterest backs several tools, so its calculationType is part of the identity.
+ */
+fun Route.isSameTool(other: Route): Boolean {
+    if (this::class != other::class) return false
+    if (this is Route.Calculator.CompoundInterest && other is Route.Calculator.CompoundInterest) {
+        return calculationType == other.calculationType
     }
+    return true
 }
 
 @Suppress("unused")

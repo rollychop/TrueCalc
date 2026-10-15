@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329724541009",
+    "project_id": "tally-c2092",
+    "storage_bucket": "tally-c2092.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329724541009:android:459924b3780f31cd912070",
+        "android_client_info": {
+          "package_name": "com.brohit.truecalc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsGYWj9vvJUtCmB0tCrN9z1mKbkv0eFk4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

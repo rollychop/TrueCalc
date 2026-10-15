@@ -1,0 +1,45 @@
+{"query": "EMI for 25 lakh at 8.5% for 20 years", "expected": [{"name": "calculate_emi", "arguments": {"principal": 2500000, "annual_rate": 8.5, "tenure": 20}}]}
+{"query": "home loan 50 lakh 9 percent 30 yrs emi", "expected": [{"name": "calculate_emi", "arguments": {"principal": 5000000, "annual_rate": 9, "tenure": 30}}]}
+{"query": "what will be my monthly installment on a car loan of 8 lakh at 10.5% for 60 months", "expected": [{"name": "calculate_emi", "arguments": {"principal": 800000, "annual_rate": 10.5, "tenure": 60, "tenure_unit": "months"}}]}
+{"query": "personal loan 2,00,000 rs 14% 3 years", "expected": [{"name": "calculate_emi", "arguments": {"principal": 200000, "annual_rate": 14, "tenure": 3}}]}
+{"query": "emi 1.2 crore 8.75 25 years", "expected": [{"name": "calculate_emi", "arguments": {"principal": 12000000, "annual_rate": 8.75, "tenure": 25}}]}
+{"query": "how much emi for 5L loan at 11% for 18 months", "expected": [{"name": "calculate_emi", "arguments": {"principal": 500000, "annual_rate": 11, "tenure": 18, "tenure_unit": "months"}}]}
+{"query": "loan of ₹75,000 at 12 percent for 1 year, monthly payment?", "expected": [{"name": "calculate_emi", "arguments": {"principal": 75000, "annual_rate": 12, "tenure": 1}}]}
+{"query": "EMI 40k loan 15% 24 months", "expected": [{"name": "calculate_emi", "arguments": {"principal": 40000, "annual_rate": 15, "tenure": 24, "tenure_unit": "months"}}]}
+{"query": "compound interest on 1 lakh at 7% for 5 years", "expected": [{"name": "calculate_compound_interest", "arguments": {"principal": 100000, "annual_rate": 7, "time": 5}}]}
+{"query": "if I invest 50000 at 12% compounded monthly for 10 years how much will I get", "expected": [{"name": "calculate_compound_interest", "arguments": {"principal": 50000, "annual_rate": 12, "time": 10, "compounding": "Monthly"}}]}
+{"query": "CI 2 lakh 8% quarterly 3 years", "expected": [{"name": "calculate_compound_interest", "arguments": {"principal": 200000, "annual_rate": 8, "time": 3, "compounding": "Quarterly"}}]}
+{"query": "compound interest 10000 rs 6.5% half yearly for 18 months", "expected": [{"name": "calculate_compound_interest", "arguments": {"principal": 10000, "annual_rate": 6.5, "time": 18, "time_unit": "months", "compounding": "SemiAnnually"}}]}
+{"query": "simple interest on 25000 at 9% for 2 years", "expected": [{"name": "calculate_simple_interest", "arguments": {"principal": 25000, "annual_rate": 9, "time": 2}}]}
+{"query": "SI 3 lakh 6 percent 4 yrs", "expected": [{"name": "calculate_simple_interest", "arguments": {"principal": 300000, "annual_rate": 6, "time": 4}}]}
+{"query": "I lent 15000 to a friend at 2% per year simple interest for 8 months", "expected": [{"name": "calculate_simple_interest", "arguments": {"principal": 15000, "annual_rate": 2, "time": 8, "time_unit": "months"}}]}
+{"query": "FD 2 lakh 7% 5 yrs", "expected": [{"name": "calculate_fixed_deposit", "arguments": {"principal": 200000, "annual_rate": 7, "time": 5}}]}
+{"query": "fixed deposit of 5,00,000 at 7.25% for 3 years maturity", "expected": [{"name": "calculate_fixed_deposit", "arguments": {"principal": 500000, "annual_rate": 7.25, "time": 3}}]}
+{"query": "how much will my 1 lakh FD at 6.8% become in 15 months", "expected": [{"name": "calculate_fixed_deposit", "arguments": {"principal": 100000, "annual_rate": 6.8, "time": 15, "time_unit": "months"}}]}
+{"query": "fd 10 lakh 7.5 percent monthly payout compounding monthly 2 years", "expected": [{"name": "calculate_fixed_deposit", "arguments": {"principal": 1000000, "annual_rate": 7.5, "time": 2, "compounding": "Monthly"}}]}
+{"query": "RD 5000 per month 7% 5 years", "expected": [{"name": "calculate_recurring_deposit", "arguments": {"installment": 5000, "annual_rate": 7, "time": 5}}]}
+{"query": "how much interest on 10k rd monthly 3 years at 6.5%", "expected": [{"name": "calculate_recurring_deposit", "arguments": {"installment": 10000, "annual_rate": 6.5, "time": 3}}]}
+{"query": "recurring deposit 2000 rupees every month for 24 months at 7.1%", "expected": [{"name": "calculate_recurring_deposit", "arguments": {"installment": 2000, "annual_rate": 7.1, "time": 24, "time_unit": "months"}}]}
+{"query": "I deposit 25000 every quarter in RD at 7% for 4 years", "expected": [{"name": "calculate_recurring_deposit", "arguments": {"installment": 25000, "annual_rate": 7, "time": 4, "interval": "QUARTERLY"}}]}
+{"query": "weekly rd of 500 for 2 years 6%", "expected": [{"name": "calculate_recurring_deposit", "arguments": {"installment": 500, "annual_rate": 6, "time": 2, "interval": "WEEKLY"}}]}
+{"query": "bmi 72kg 175cm", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 72, "height_cm": 175}}]}
+{"query": "what's my BMI if I weigh 85 kg and I'm 180 cm tall", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 85, "height_cm": 180}}]}
+{"query": "I am 5 ft 9 in and 68 kg, am I overweight?", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 68, "height_cm": 175.3}}]}
+{"query": "body mass index for height 160 cm weight 55", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 55, "height_cm": 160}}]}
+{"query": "how many calories should I eat, 28 years male 70 kg 172 cm moderately active", "expected": [{"name": "calculate_daily_calories", "arguments": {"age": 28, "weight_kg": 70, "height_cm": 172, "gender": "Male", "activity": "Moderately active"}}]}
+{"query": "daily calories for a 35 year old woman, 60kg, 158cm, sedentary", "expected": [{"name": "calculate_daily_calories", "arguments": {"age": 35, "weight_kg": 60, "height_cm": 158, "gender": "Female", "activity": "Sedentary"}}]}
+{"query": "calorie need age 45 weight 90 height 178 very active", "expected": [{"name": "calculate_daily_calories", "arguments": {"age": 45, "weight_kg": 90, "height_cm": 178, "activity": "Very active"}}]}
+{"query": "maintenance calories female 22 52 kg 165 cm lightly active", "expected": [{"name": "calculate_daily_calories", "arguments": {"age": 22, "weight_kg": 52, "height_cm": 165, "gender": "Female", "activity": "Lightly active"}}]}
+{"query": "ideal weight for 170 cm male", "expected": [{"name": "calculate_ideal_weight", "arguments": {"height_cm": 170, "gender": "Male"}}]}
+{"query": "what should a woman of 162 cm weigh", "expected": [{"name": "calculate_ideal_weight", "arguments": {"height_cm": 162, "gender": "Female"}}]}
+{"query": "ideal body weight 5 ft 4 in female", "expected": [{"name": "calculate_ideal_weight", "arguments": {"height_cm": 162.6, "gender": "Female"}}]}
+{"query": "healthy weight for my height 183cm", "expected": [{"name": "calculate_ideal_weight", "arguments": {"height_cm": 183}}]}
+{"query": "emi for 30 lakh at 8.4% for 20 years and also FD 1 lakh 7% 1 year", "expected": [{"name": "calculate_emi", "arguments": {"principal": 3000000, "annual_rate": 8.4, "tenure": 20}}, {"name": "calculate_fixed_deposit", "arguments": {"principal": 100000, "annual_rate": 7, "time": 1}}]}
+{"query": "bmi 80 kg 170 cm and ideal weight for 170 cm", "expected": [{"name": "calculate_bmi", "arguments": {"weight_kg": 80, "height_cm": 170}}, {"name": "calculate_ideal_weight", "arguments": {"height_cm": 170}}]}
+{"query": "convert 100 usd to inr", "expected": []}
+{"query": "what is the weather in Mumbai", "expected": []}
+{"query": "what is 15% of 2400", "expected": []}
+{"query": "tell me a joke", "expected": []}
+{"query": "set an alarm for 6 am", "expected": []}
+{"query": "convert 30 celsius to fahrenheit", "expected": []}
+{"query": "which mutual fund is best", "expected": []}

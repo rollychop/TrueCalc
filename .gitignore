@@ -14,4 +14,9 @@
 .cxx
 local.properties
 .artifacts/
-google-services.json
+
+# Smart assistant trial (docs/smart-assistant)
+docs/smart-assistant/.venv/
+*.cact
+*.safetensors
+__pycache__/

@@ -1,0 +1,114 @@
+[
+  {
+    "name": "calculate_emi",
+    "description": "Monthly EMI for a loan (home, car, personal loan). Amount in rupees, rate is annual percent.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {"type": "number", "description": "Loan amount in rupees", "exclusiveMinimum": 0},
+        "annual_rate": {"type": "number", "description": "Annual interest rate in percent", "minimum": 0, "maximum": 100},
+        "tenure": {"type": "number", "description": "Loan duration", "exclusiveMinimum": 0},
+        "tenure_unit": {"type": "string", "enum": ["years", "months"], "default": "years"}
+      },
+      "required": ["principal", "annual_rate", "tenure"]
+    }
+  },
+  {
+    "name": "calculate_compound_interest",
+    "description": "Compound interest and maturity amount on a one-time investment.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {"type": "number", "description": "Amount invested in rupees", "exclusiveMinimum": 0},
+        "annual_rate": {"type": "number", "description": "Annual interest rate in percent", "minimum": 0, "maximum": 100},
+        "time": {"type": "number", "exclusiveMinimum": 0},
+        "time_unit": {"type": "string", "enum": ["years", "months"], "default": "years"},
+        "compounding": {"type": "string", "enum": ["Annually", "SemiAnnually", "Quarterly", "Monthly", "Daily"], "default": "Annually"}
+      },
+      "required": ["principal", "annual_rate", "time"]
+    }
+  },
+  {
+    "name": "calculate_simple_interest",
+    "description": "Simple interest (no compounding) on an amount.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {"type": "number", "description": "Amount in rupees", "exclusiveMinimum": 0},
+        "annual_rate": {"type": "number", "description": "Annual interest rate in percent", "minimum": 0, "maximum": 100},
+        "time": {"type": "number", "exclusiveMinimum": 0},
+        "time_unit": {"type": "string", "enum": ["years", "months"], "default": "years"}
+      },
+      "required": ["principal", "annual_rate", "time"]
+    }
+  },
+  {
+    "name": "calculate_fixed_deposit",
+    "description": "Fixed deposit (FD) maturity amount and interest earned.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {"type": "number", "description": "Deposit amount in rupees", "exclusiveMinimum": 0},
+        "annual_rate": {"type": "number", "description": "Annual interest rate in percent", "minimum": 0, "maximum": 100},
+        "time": {"type": "number", "exclusiveMinimum": 0},
+        "time_unit": {"type": "string", "enum": ["years", "months"], "default": "years"},
+        "compounding": {"type": "string", "enum": ["Annually", "SemiAnnually", "Quarterly", "Monthly", "Daily"], "default": "Quarterly"}
+      },
+      "required": ["principal", "annual_rate", "time"]
+    }
+  },
+  {
+    "name": "calculate_recurring_deposit",
+    "description": "Recurring deposit (RD) maturity for a fixed installment paid regularly.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "installment": {"type": "number", "description": "Amount deposited each period in rupees", "exclusiveMinimum": 0},
+        "annual_rate": {"type": "number", "description": "Annual interest rate in percent", "minimum": 0, "maximum": 100},
+        "time": {"type": "number", "exclusiveMinimum": 0},
+        "time_unit": {"type": "string", "enum": ["years", "months"], "default": "years"},
+        "interval": {"type": "string", "enum": ["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "HALF_YEARLY", "YEARLY"], "default": "MONTHLY"}
+      },
+      "required": ["installment", "annual_rate", "time"]
+    }
+  },
+  {
+    "name": "calculate_bmi",
+    "description": "Body Mass Index from weight in kg and height in cm.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "weight_kg": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "height_cm": {"type": "number", "exclusiveMinimum": 0, "maximum": 300}
+      },
+      "required": ["weight_kg", "height_cm"]
+    }
+  },
+  {
+    "name": "calculate_daily_calories",
+    "description": "Daily calorie needs (BMR and maintenance calories).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "age": {"type": "integer", "minimum": 1, "maximum": 120},
+        "weight_kg": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "height_cm": {"type": "number", "exclusiveMinimum": 0, "maximum": 300},
+        "gender": {"type": "string", "enum": ["Male", "Female"], "default": "Male"},
+        "activity": {"type": "string", "enum": ["Sedentary", "Lightly active", "Moderately active", "Very active", "Extra active"], "default": "Sedentary"}
+      },
+      "required": ["age", "weight_kg", "height_cm"]
+    }
+  },
+  {
+    "name": "calculate_ideal_weight",
+    "description": "Ideal body weight for a height in cm.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "height_cm": {"type": "number", "exclusiveMinimum": 0, "maximum": 300},
+        "gender": {"type": "string", "enum": ["Male", "Female"], "default": "Male"}
+      },
+      "required": ["height_cm"]
+    }
+  }
+]
