@@ -14,3 +14,9 @@
 .cxx
 local.properties
 .artifacts/
+
+# Smart assistant trial (docs/smart-assistant)
+docs/smart-assistant/.venv/
+*.cact
+*.safetensors
+__pycache__/

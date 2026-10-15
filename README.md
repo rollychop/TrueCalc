@@ -11,6 +11,10 @@ True Calc is a feature-rich Android application designed to provide users with a
 - **In-App Updates**: Always stay on the latest version with seamless update integration.
 - **Modern UI**: Built entirely with Jetpack Compose and Material 3.
 
+## 🔮 Roadmap
+
+- **Smart Assistant**: ask in plain English ("EMI for 25 lakh at 8.5% for 20 years") and get the answer from TrueCalc's own calculators, fully offline using an on-device Cactus Needle model. See [docs/smart-assistant](docs/smart-assistant/README.md).
+
 ## 🛠️ Tech Stack
 
 - **UI**: Jetpack Compose (Material 3)
