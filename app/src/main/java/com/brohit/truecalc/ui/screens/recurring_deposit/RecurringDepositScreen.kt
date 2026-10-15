@@ -38,7 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.RecurringInterval
 import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.components.BackIconButton
@@ -50,6 +51,7 @@ import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
+import com.brohit.truecalc.ui.screens.compund_interest.getLabelFor
 import kotlinx.serialization.json.Json
 
 @Composable

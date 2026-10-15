@@ -1,5 +1,10 @@
-package com.brohit.truecalc.ui.screens.recurring_deposit
+package com.brohit.truecalc.domain.calc
 
+/**
+ * How often a recurring deposit installment is paid.
+ *
+ * Entry names are persisted in history `restorationJson` (`"interval"` key), so never rename them.
+ */
 enum class RecurringInterval(val paymentsPerYear: Int, val label: String) {
     DAILY(365, "Daily"),
     WEEKLY(52, "Weekly"),

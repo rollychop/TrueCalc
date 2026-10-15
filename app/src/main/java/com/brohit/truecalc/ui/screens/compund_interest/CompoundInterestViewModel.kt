@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel

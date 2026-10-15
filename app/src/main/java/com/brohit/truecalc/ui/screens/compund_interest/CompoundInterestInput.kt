@@ -1,6 +1,6 @@
 package com.brohit.truecalc.ui.screens.compund_interest
 
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
 
 data class CompoundInterestInput(
     val type: String,

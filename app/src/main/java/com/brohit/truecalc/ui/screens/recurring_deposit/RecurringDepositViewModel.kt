@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
-import com.brohit.truecalc.domain.model.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.CompoundingFrequency
+import com.brohit.truecalc.domain.calc.RecurringInterval
 import com.brohit.truecalc.domain.model.InvestmentResultState
 import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
+import com.brohit.truecalc.ui.screens.compund_interest.getLabelFor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
