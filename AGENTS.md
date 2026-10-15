@@ -56,3 +56,7 @@ Plan, model research (Cactus Needle 3) and a desktop trial kit live in [`docs/sm
 - `tools.json` is the tool contract; keep it in sync with calculators and their `restorationJson` keys.
 - `spike.py`'s `normalize()` is the reference for the future `core/QueryNormalizer.kt`.
 - The cloud container has no Android SDK/NDK: native/JNI work and on-device testing happen on the developer's machine.
+
+## 🎨 Planned: UI modernization & tool expansion
+Audit, design system, shared tool components and the prioritised tool list live in [`docs/ui-modernization/`](docs/ui-modernization/README.md).
+New tool screens must use the shared `ToolScaffold` components and theme tokens once Phase 1 lands; no hardcoded colours or one-off spacing.
