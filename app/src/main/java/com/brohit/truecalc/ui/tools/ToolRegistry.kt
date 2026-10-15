@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.brohit.truecalc.common.TextSearch
 import com.brohit.truecalc.ui.navigation.Route
 import com.brohit.truecalc.ui.screens.compund_interest.CalculationType
-import com.brohit.truecalc.ui.screens.home.isSameTool
 import com.brohit.truecalc.ui.theme.LocalExtendedColors
+import kotlinx.serialization.json.Json
 
 /** Which theme colour group tints a category's icons. */
 enum class CategoryAccent { Primary, Secondary, Tertiary, Extended }
@@ -86,7 +86,26 @@ data class ToolSpec(
     val route: Route,
     val keywords: List<String> = emptyList(),
     val isNew: Boolean = false,
-)
+) {
+    /**
+     * The route serialised as `Json.encodeToString<Route>(route)`: the key favourites, tool usage
+     * and history use in Room (e.g. `{"type":"EmiCalculator"}`). Never change this format, or
+     * existing pins and history stop matching.
+     */
+    val routeKey: String get() = Json.encodeToString(Route.serializer(), route)
+}
+
+/**
+ * Whether this route points to the same tool as [other], ignoring restoration state.
+ * CompoundInterest backs several tools, so its calculationType is part of the identity.
+ */
+fun Route.isSameTool(other: Route): Boolean {
+    if (this::class != other::class) return false
+    if (this is Route.Calculator.CompoundInterest && other is Route.Calculator.CompoundInterest) {
+        return calculationType == other.calculationType
+    }
+    return true
+}
 
 /** Single source of truth for the tool list (Home, Search, Favourites, History labels…). */
 object ToolRegistry {
@@ -179,6 +198,36 @@ object ToolRegistry {
 
     /** Tool for a route, ignoring restoration state; CompoundInterest variants are distinct. */
     fun forRoute(route: Route): ToolSpec? = all.firstOrNull { it.route.isSameTool(route) }
+
+    /**
+     * Tool for a stored route key (route JSON from favourites, usage or history), or null if it
+     * can't be decoded or no longer maps to a registered tool.
+     */
+    fun forRouteKey(routeKey: String): ToolSpec? {
+        val route = try {
+            Json.decodeFromString(Route.serializer(), routeKey)
+        } catch (_: Exception) {
+            return null
+        }
+        return forRoute(route)
+    }
+
+    /**
+     * Resolves stored route keys to tools, in order, dropping unknown keys and duplicates of the
+     * same tool, and keeping at most [limit].
+     */
+    fun forRouteKeys(routeKeys: List<String>, limit: Int = Int.MAX_VALUE): List<ToolSpec> =
+        routeKeys.asSequence()
+            .mapNotNull { forRouteKey(it) }
+            .distinctBy { it.id }
+            .take(limit)
+            .toList()
+
+    /** Category for a stable key ([ToolCategory.name], e.g. "Finance"), or null. */
+    fun categoryForKey(key: String): ToolCategory? = ToolCategory.entries.firstOrNull { it.name == key }
+
+    /** Tools in [category], in registry order. */
+    fun inCategory(category: ToolCategory): List<ToolSpec> = all.filter { it.category == category }
 
     /** Tools grouped by category, in [ToolCategory] order; empty categories are omitted. */
     fun byCategory(): Map<ToolCategory, List<ToolSpec>> =

@@ -17,17 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Restore
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -48,21 +44,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.CalculationHistory
+import com.brohit.truecalc.ui.components.BackIconButton
 import com.brohit.truecalc.ui.components.ConfirmationDialog
+import com.brohit.truecalc.ui.components.ToolIcon
 import com.brohit.truecalc.ui.navigation.AppNavigator
 import com.brohit.truecalc.ui.navigation.Route
+import com.brohit.truecalc.ui.navigation.withRestorationJson
+import com.brohit.truecalc.ui.theme.Spacing
+import com.brohit.truecalc.ui.tools.ToolRegistry
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private val GroupIconSize = 40.dp
+private val EmptyIconSize = 64.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,27 +96,22 @@ fun HistoryScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        if (toolRouteFilter != null) "Calculation History" else "History",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(if (toolRouteFilter != null) "Calculation history" else "History")
                 },
                 navigationIcon = {
                     if (toolRouteFilter != null) {
-                        IconButton(onClick = { navigator.navigateUp() }) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                        }
+                        BackIconButton(onClick = { navigator.navigateUp() })
                     }
                 },
                 actions = {
                     if (displayHistory.isNotEmpty()) {
                         IconButton(onClick = { showClearAllDialog = true }) {
-                            Icon(Icons.Rounded.DeleteSweep, "Clear All")
+                            Icon(Icons.Rounded.DeleteSweep, contentDescription = "Clear all history")
                         }
                     }
                 }
@@ -128,8 +125,8 @@ fun HistoryScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(horizontal = Spacing.l, vertical = Spacing.s),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s)
             ) {
                 displayHistory.forEach { (toolName, entries) ->
                     item(key = toolName) {
@@ -146,15 +143,7 @@ fun HistoryScreen(
                                     null
                                 }
                                 if (route != null) {
-                                    val restorationRoute = when (route) {
-                                        is Route.Calculator.Emi -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.Calculator.CompoundInterest -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.Calculator.RecurringDeposit -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.Calculator.Bmi -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.Calculator.Calorie -> route.copy(restorationJson = entry.restorationJson)
-                                        is Route.Calculator.IdealWeight -> route.copy(restorationJson = entry.restorationJson)
-                                        else -> route
-                                    }
+                                    val restorationRoute = route.withRestorationJson(entry.restorationJson)
                                     navigator.navigate(restorationRoute) {
                                         popUpTo<Route.HistoryScreen> { inclusive = true }
                                     }
@@ -200,71 +189,73 @@ private fun HistoryGroupItem(
     onRestore: (CalculationHistory) -> Unit
 ) {
     val rotation by animateFloatAsState(if (isExpanded) 180f else 0f, label = "rotation")
+    val tool = remember(entries) {
+        entries.firstNotNullOfOrNull { ToolRegistry.forRouteKey(it.toolRoute) }
+    }
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
             Row(
                 modifier = Modifier
-                    .clickable { onToggle() }
-                    .padding(12.dp),
+                    .fillMaxWidth()
+                    .clickable(onClickLabel = if (isExpanded) "Collapse" else "Expand") { onToggle() }
+                    .padding(Spacing.m),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.History,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
+                if (tool != null) {
+                    ToolIcon(tool = tool, size = GroupIconSize)
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(GroupIconSize)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.History,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(Spacing.m))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = toolName,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "${entries.size} calculations",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        text = if (entries.size == 1) "1 calculation" else "${entries.size} calculations",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Icon(
                     imageVector = Icons.Rounded.ExpandMore,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .rotate(rotation)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.rotate(rotation)
                 )
             }
 
             AnimatedVisibility(visible = isExpanded) {
-                Column(modifier = Modifier.padding(bottom = 4.dp)) {
+                Column(modifier = Modifier.padding(bottom = Spacing.xs)) {
                     entries.forEach { entry ->
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = Spacing.m),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                         HistoryEntryDetail(
                             entry = entry,
                             onDelete = { onDeleteEntry(entry.id) },
                             onRestore = { onRestore(entry) }
                         )
-                        if (entry != entries.last()) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                        }
                     }
                 }
             }
@@ -291,56 +282,49 @@ private fun HistoryEntryDetail(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp)
+            .padding(start = Spacing.m, end = Spacing.xs, bottom = Spacing.m)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = date,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onRestore, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        imageVector = Icons.Rounded.Restore,
-                        contentDescription = "Restore",
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        imageVector = Icons.Rounded.DeleteOutline,
-                        contentDescription = "Delete",
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
-                    )
-                }
+            IconButton(onClick = onRestore) {
+                Icon(
+                    imageVector = Icons.Rounded.Restore,
+                    contentDescription = "Restore",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Rounded.DeleteOutline,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Inputs & Results in a more compact way
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(
+            modifier = Modifier.padding(end = Spacing.s),
+            verticalArrangement = Arrangement.spacedBy(Spacing.xs)
+        ) {
             inputs.forEach { (key, value) ->
                 Text(
                     text = "$key: $value",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             results.forEach { (key, value) ->
                 Text(
                     text = "$key: $value",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -353,28 +337,28 @@ private fun HistoryEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .padding(Spacing.xxl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Rounded.History,
             contentDescription = null,
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            modifier = Modifier.size(EmptyIconSize),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.l))
         Text(
-            text = "Your history is empty",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
+            text = "No calculations yet",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.s))
         Text(
-            text = "Calculations will appear here after you use the tools.",
+            text = "Results you calculate are saved here so you can restore them later.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }

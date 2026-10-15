@@ -26,7 +26,7 @@ import com.brohit.truecalc.domain.model.TextFieldState
 import com.brohit.truecalc.ui.theme.Spacing
 
 /**
- * Numeric input bound to a [TextFieldState] (replaces `CustomTextField` for numbers).
+ * Numeric input bound to a [TextFieldState]; the app's only number field.
  *
  * - Decimal keyboard by default ([decimal] = false for whole numbers); input is filtered to
  *   digits and a single '.', and a ',' typed by locale keyboards becomes '.'.

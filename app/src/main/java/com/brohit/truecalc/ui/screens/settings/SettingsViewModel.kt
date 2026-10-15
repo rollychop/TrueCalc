@@ -48,7 +48,7 @@ class SettingsViewModel @Inject constructor(
     fun clearFavorites() {
         viewModelScope.launch {
             favoritesRepository.clearAllFavorites()
-            _eventChannel.send(SettingsEvent.DataCleared("Favorites cleared"))
+            _eventChannel.send(SettingsEvent.DataCleared("Pinned tools cleared"))
         }
     }
 

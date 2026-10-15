@@ -1,11 +1,10 @@
 package com.brohit.truecalc.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Category
-import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
@@ -18,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -38,7 +38,7 @@ fun MainAppScreen(
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val isDynamicColor by viewModel.isDynamicColorEnabled.collectAsStateWithLifecycle()
-    
+
     val darkTheme = when (themeMode) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
         ThemeMode.LIGHT -> false
@@ -54,10 +54,9 @@ fun MainAppScreen(
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
+        // Pinned tools and categories live on Home, so three tabs are enough.
         val items = listOf(
             BottomNavItem("Home", Route.MainScreen, Icons.Rounded.Home),
-            BottomNavItem("Categories", Route.CategoriesScreen, Icons.Rounded.Category),
-            BottomNavItem("Favorites", Route.FavoritesScreen, Icons.Rounded.Favorite),
             BottomNavItem("History", Route.HistoryScreen(), Icons.Rounded.History),
             BottomNavItem("Settings", Route.SettingsScreen, Icons.Rounded.Settings)
         )
@@ -96,6 +95,8 @@ fun MainAppScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    // The padding already includes the status bar; don't let nested app bars add it again.
+                    .consumeWindowInsets(innerPadding)
             ) {
                 NavHost(
                     navController = navController,
@@ -111,5 +112,6 @@ fun MainAppScreen(
 private data class BottomNavItem(
     val label: String,
     val route: Route,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector,
 )
+

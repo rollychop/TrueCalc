@@ -19,7 +19,7 @@ The project follows **MVVM (Model-View-ViewModel)** with **Clean Architecture** 
 - **`domain/`**: Pure Kotlin logic. Interfaces for repositories, business models, and use cases (if applicable).
 - **`ui/`**: Jetpack Compose code. 
     - `screens/`: Feature-specific UI.
-    - `components/`: Reusable UI widgets (e.g., `CustomTextField`, `ResultRow`).
+    - `components/`: Reusable UI widgets (e.g., `ResultRow`); tool screens use `components/tool/` (`ToolScreen`, `NumberField`, `ResultHero`, …).
     - `navigation/`: Centralized routing in `AppNavGraph.kt`.
 - **`di/`**: Dagger Hilt modules.
 - **`core/`**: Critical math utilities (`MathUtils.kt`) and text processing.
