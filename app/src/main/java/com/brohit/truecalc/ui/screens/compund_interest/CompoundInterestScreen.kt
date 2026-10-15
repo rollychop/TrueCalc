@@ -1,285 +1,170 @@
 package com.brohit.truecalc.ui.screens.compund_interest
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.domain.calc.CompoundingFrequency
-import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
 import com.brohit.truecalc.domain.model.InvestmentResultState
-import com.brohit.truecalc.ui.components.BackIconButton
-import com.brohit.truecalc.ui.components.CustomTextField
-import com.brohit.truecalc.ui.components.ExpandableSelector
 import com.brohit.truecalc.ui.components.InvestmentBreakdownChart
-import com.brohit.truecalc.ui.components.ResultRow
+import com.brohit.truecalc.ui.components.tool.BreakdownRow
+import com.brohit.truecalc.ui.components.tool.BreakdownSection
+import com.brohit.truecalc.ui.components.tool.InputSection
+import com.brohit.truecalc.ui.components.tool.MoreOptions
+import com.brohit.truecalc.ui.components.tool.NumberField
+import com.brohit.truecalc.ui.components.tool.OptionPicker
+import com.brohit.truecalc.ui.components.tool.ResultHero
+import com.brohit.truecalc.ui.components.tool.ToolInfo
+import com.brohit.truecalc.ui.components.tool.ToolPreviewColumn
+import com.brohit.truecalc.ui.components.tool.ToolPreviews
+import com.brohit.truecalc.ui.components.tool.ToolScreen
+import com.brohit.truecalc.ui.components.tool.UnitToggle
 import com.brohit.truecalc.ui.navigation.AppNavigator
-import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
-import kotlinx.serialization.json.Json
+import com.brohit.truecalc.ui.tools.ToolRegistry
 
-
+/** Compound interest, simple interest and fixed deposit share this screen. */
 @Composable
 fun CompoundInterestScreen(
     navigator: AppNavigator,
     viewModel: CompoundInterestViewModel = hiltViewModel()
 ) {
-    CompoundInterestUI(
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val inputState = viewModel.inputState
+    val tool = ToolRegistry.forRoute(Route.Calculator.CompoundInterest(inputState.calculationType))
+        ?: checkNotNull(ToolRegistry.byId("compound_interest"))
+
+    ToolScreen(
+        tool = tool,
         navigator = navigator,
-        inputState = viewModel.inputState,
-        state = viewModel.state.collectAsStateWithLifecycle().value
-    )
+        onReset = viewModel::reset,
+        shareText = state.shareText,
+    ) {
+        CompoundInterestContent(inputState = inputState, state = state)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Short labels for the calculation switcher. */
+private fun shortLabel(type: String): String = when (type) {
+    CalculationType.COMPOUND -> "Compound"
+    CalculationType.SIMPLE -> "Simple"
+    CalculationType.FIXED -> "FD"
+    else -> type
+}
+
 @Composable
-fun CompoundInterestUI(
-    navigator: AppNavigator,
+fun CompoundInterestContent(
     inputState: CompoundInterestInputState,
-    state: InvestmentResultState
+    state: InvestmentResultState,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(inputState.calculationType, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    BackIconButton(onClick = { navigator.navigateUp() })
-                },
-                actions = {
-                    InvestmentToggleButton(inputState)
-                    IconButton(onClick = {
-                        val routeStr = Json.encodeToString(Route.Calculator.CompoundInterest(inputState.calculationType) as Route)
-                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr))
-                    }) {
-                        Icon(Icons.Rounded.History, contentDescription = "History")
-                    }
-                }
+    val type = inputState.calculationType
+    val timeUnit = if (inputState.isTimeInYears) "years" else "months"
+
+    InputSection {
+        UnitToggle(
+            options = CalculationType.entries,
+            selected = type,
+            onSelect = inputState::onCalculationTypeChange,
+            label = ::shortLabel,
+        )
+        NumberField(
+            state = inputState.principal,
+            label = if (type == CalculationType.FIXED) "Deposit amount" else "Principal amount",
+            prefix = "₹",
+        )
+        NumberField(
+            state = inputState.interestRate,
+            label = "Interest rate (p.a.)",
+            suffix = "%",
+        )
+        NumberField(
+            state = inputState.time,
+            label = "Time period",
+            suffix = timeUnit,
+            imeAction = ImeAction.Done,
+        )
+        UnitToggle(
+            options = listOf(true, false),
+            selected = inputState.isTimeInYears,
+            onSelect = { inputState.isTimeInYears = it },
+            label = { if (it) "Years" else "Months" },
+        )
+    }
+
+    if (type != CalculationType.SIMPLE) {
+        val frequencyTitle =
+            if (type == CalculationType.FIXED) "Interest payout frequency" else "Compounding frequency"
+        MoreOptions(
+            summary = inputState.compoundingFrequency.getLabelFor(type) +
+                    if (type == CalculationType.FIXED) " payout" else " compounding",
+        ) {
+            OptionPicker(
+                label = frequencyTitle,
+                options = CompoundingFrequency.entries,
+                selected = inputState.compoundingFrequency,
+                onSelect = { inputState.compoundingFrequency = it },
+                optionLabel = { it.getLabelFor(type) },
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Spacer(Modifier.height(8.dp))
+    }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                CustomTextField(
-                    state = inputState.principal,
-                    label = "PRINCIPAL AMOUNT (₹)",
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    visualTransformation = IndianCurrencyVisualTransformation,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Enter Principal"
-                )
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CustomTextField(
-                        state = inputState.interestRate,
-                        label = "Annual Interest Rate (%)",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Rate"
-                    )
-                    CustomTextField(
-                        state = inputState.time,
-                        label = "Time Period (${if (inputState.isTimeInYears) "Years" else "Months"})",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        trailingContent = {
-                            Text(
-                                text = if (inputState.isTimeInYears) "Year(s)" else "Month(s)",
-                                modifier = Modifier.clickable {
-                                    inputState.isTimeInYears = !inputState.isTimeInYears
-                                }, color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelSmall,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        },
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Time"
-                    )
-                }
-            }
+    ResultHero(
+        label = if (type == CalculationType.FIXED) "Maturity amount" else "Final amount",
+        value = if (state.hasResult) state.finalAmount else null,
+        caption = if (state.hasResult) "Interest earned ${state.interestEarned}" else null,
+        emptyText = "Enter amount, rate and time to see the result",
+    )
 
-            if (inputState.calculationType != CalculationType.SIMPLE) {
-                ExpandableSelector(
-                    title = when (inputState.calculationType) {
-                        CalculationType.FIXED -> "Interest Payout Frequency"
-                        CalculationType.COMPOUND -> "Compounding Frequency"
-                        else -> ""
-                    },
-                    options = CompoundingFrequency.entries,
-                    selectedOption = inputState.compoundingFrequency,
-                    onOptionSelected = {
-                        inputState.compoundingFrequency = it
-                    },
-                    optionTitleSelector = { it.getLabelFor(inputState.calculationType) },
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                Text("Calculations", style = MaterialTheme.typography.headlineSmall)
-                ResultRow("Final Amount", state.finalAmount)
-                ResultRow("Interest Earned", state.interestEarned)
-                ResultRow("Total Invested", state.totalInvestment)
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
+    if (state.hasResult) {
+        BreakdownSection(
+            rows = listOf(
+                BreakdownRow("Total invested", state.totalInvestment),
+                BreakdownRow("Interest earned", state.interestEarned),
+                BreakdownRow(
+                    if (type == CalculationType.FIXED) "Maturity amount" else "Final amount",
+                    state.finalAmount,
+                    emphasized = true,
+                ),
+            ),
+            chart = {
                 InvestmentBreakdownChart(
                     totalAmount = state.amount,
                     interest = state.interest,
                     principal = state.principal,
-                    title = "Breakdown of ${inputState.calculationType}",
-                    modifier = Modifier
+                    title = null,
                 )
-            }
-        }
+            },
+        )
+    }
+
+    when (type) {
+        CalculationType.SIMPLE -> ToolInfo(
+            formula = "Interest = P × R × T\nAmount = P + Interest",
+            notes = "P is the principal, R the annual rate ÷ 100 and T the time in years " +
+                    "(months ÷ 12). Interest is earned only on the principal.",
+        )
+
+        else -> ToolInfo(
+            formula = "A = P × (1 + R/n)^(n × T)",
+            notes = "P is the principal, R the annual rate ÷ 100, n how many times a year interest " +
+                    "is compounded and T the time in years (months ÷ 12). Interest = A − P.",
+        )
     }
 }
 
+@ToolPreviews
 @Composable
-private fun InvestmentToggleButton(
-    inputState: CompoundInterestInputState,
-) {
-    val expanded = remember { mutableStateOf(false) }
-    val calculationType = inputState.calculationType
-    val allTypes = CalculationType.entries
-
-    // Animate scale to highlight the button
-    val scale by animateFloatAsState(
-        targetValue = if (expanded.value) 1.2f else 1f,
-        animationSpec = tween(durationMillis = 200),
-        label = "ScaleAnimation"
-    )
-
-    // Optional: subtle background color highlight when expanded
-    val backgroundColor by animateColorAsState(
-        targetValue = if (expanded.value)
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-        else Color.Transparent,
-        animationSpec = tween(durationMillis = 200),
-        label = "BackgroundColorAnimation"
-    )
-
-    Box(
-        modifier = Modifier
-            .background(backgroundColor, shape = MaterialTheme.shapes.small)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-    ) {
-        IconButton(onClick = { expanded.value = true }) {
-            Icon(
-                imageVector = Icons.Filled.SwapVert,
-                contentDescription = "Change calculation",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded.value,
-            onDismissRequest = { expanded.value = false }
-        ) {
-            allTypes.forEach { type ->
-                DropdownMenuItem(
-                    text = { Text(type) },
-                    onClick = {
-                        inputState.onCalculationTypeChange(type)
-                        expanded.value = false
-                    },
-                    enabled = calculationType != type
-                )
-            }
-        }
+private fun CompoundInterestContentPreview() {
+    val inputState = CompoundInterestInputState(CalculationType.FIXED).apply {
+        principal.updateText("100000")
+        interestRate.updateText("7")
+        time.updateText("5")
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun CompoundInterestScreenPreview() {
-    CompoundInterestUI(
-        navigator = FakeAppNavigator,
-        inputState = CompoundInterestInputState(),
-        state = InvestmentResultState()
-    )
+    ToolPreviewColumn {
+        CompoundInterestContent(
+            inputState = inputState,
+            state = InvestmentResultState(amount = 141478.30, interest = 41478.30, principal = 100000.0),
+        )
+    }
 }

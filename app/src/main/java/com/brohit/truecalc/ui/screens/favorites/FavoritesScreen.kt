@@ -81,12 +81,13 @@ fun FavoritesScreen(
                     }
 
                     items(suggestions) { calculator ->
-                        val (bg, iconBg) = getToolColors(calculator.name)
+                        val (bg, iconBg, iconFg) = getToolColors(calculator.name)
                         CompactToolCard(
                             name = calculator.name,
                             description = calculator.description,
                             icon = calculator.icon,
                             iconContainerColor = iconBg,
+                            iconContentColor = iconFg,
                             backgroundColor = bg,
                             onClick = { 
                                 viewModel.logUsage(calculator.route)
@@ -113,12 +114,13 @@ fun FavoritesScreen(
                     }
                     val calculator = route?.toCalculator()
                     if (calculator != null) {
-                        val (bg, iconBg) = getToolColors(calculator.name)
+                        val (bg, iconBg, iconFg) = getToolColors(calculator.name)
                         CompactToolCard(
                             name = calculator.name,
                             description = calculator.description,
                             icon = calculator.icon,
                             iconContainerColor = iconBg,
+                            iconContentColor = iconFg,
                             backgroundColor = bg,
                             onClick = { 
                                 viewModel.logUsage(calculator.route)

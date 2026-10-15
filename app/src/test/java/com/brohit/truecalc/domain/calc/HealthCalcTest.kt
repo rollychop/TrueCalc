@@ -32,6 +32,16 @@ class HealthCalcTest {
     }
 
     @Test
+    fun bmi_healthyWeightRange() {
+        val range = BmiCalc.healthyWeightRange(175.0)!!
+        assertEquals(18.5 * 1.75 * 1.75, range.start, 1e-9)
+        assertEquals(24.9 * 1.75 * 1.75, range.endInclusive, 1e-9)
+        assertEquals(BmiCategory.Normal, BmiCalc.calculate(range.start + 0.01, 175.0)!!.category)
+        assertEquals(BmiCategory.Normal, BmiCalc.calculate(range.endInclusive - 0.01, 175.0)!!.category)
+        assertNull(BmiCalc.healthyWeightRange(0.0))
+    }
+
+    @Test
     fun calorie_mifflinStJeor() {
         // Male: 10*70 + 6.25*175 - 5*30 + 5 = 1648.75
         val male = CalorieCalc.calculate(30, 70.0, 175.0, Gender.Male, ActivityLevel.Sedentary)

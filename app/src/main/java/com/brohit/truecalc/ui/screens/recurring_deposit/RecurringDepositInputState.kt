@@ -36,4 +36,14 @@ class RecurringDepositInputState {
     )
 
     var compoundingFrequency by mutableStateOf(CompoundingFrequency.Quarterly)
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() {
+        principal.reset()
+        interestRate.reset()
+        time.reset()
+        recurringInterval = RecurringInterval.MONTHLY
+        isTimeInYears = true
+        compoundingFrequency = CompoundingFrequency.Quarterly
+    }
 }

@@ -1,317 +1,180 @@
 package com.brohit.truecalc.ui.screens.emi
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brohit.truecalc.data.data_source.local.room.entity.FixedCharge
-import com.brohit.truecalc.domain.AppState
-import com.brohit.truecalc.domain.model.IndianCurrencyVisualTransformation
-import com.brohit.truecalc.ui.components.BackIconButton
-import com.brohit.truecalc.ui.components.CustomTextField
 import com.brohit.truecalc.ui.components.EMIPieChart
-import com.brohit.truecalc.ui.components.ResultRow
+import com.brohit.truecalc.ui.components.tool.BreakdownRow
+import com.brohit.truecalc.ui.components.tool.BreakdownSection
+import com.brohit.truecalc.ui.components.tool.InputSection
+import com.brohit.truecalc.ui.components.tool.MoreOptions
+import com.brohit.truecalc.ui.components.tool.NumberField
+import com.brohit.truecalc.ui.components.tool.ResultHero
+import com.brohit.truecalc.ui.components.tool.ToolInfo
+import com.brohit.truecalc.ui.components.tool.ToolPreviewColumn
+import com.brohit.truecalc.ui.components.tool.ToolPreviews
+import com.brohit.truecalc.ui.components.tool.ToolScreen
+import com.brohit.truecalc.ui.components.tool.UnitToggle
 import com.brohit.truecalc.ui.navigation.AppNavigator
-import com.brohit.truecalc.ui.navigation.FakeAppNavigator
 import com.brohit.truecalc.ui.navigation.Route
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LoanCalculatorUI(
-    navigator: AppNavigator,
-    fixedCharges: List<FixedCharge>,
-    inputState: EmiCalculatorInputState,
-    state: EmiCalculatorState
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("EMI Calculator", fontWeight = FontWeight.Bold) },
-                navigationIcon = { BackIconButton(onClick = { navigator.navigateUp() }) },
-                actions = {
-                    IconButton(onClick = { 
-                        val routeStr = Json.encodeToString(Route.Calculator.Emi() as Route)
-                        navigator.navigate(Route.HistoryScreen(toolRouteFilter = routeStr)) 
-                    }) {
-                        Icon(Icons.Rounded.History, contentDescription = "History")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                CustomTextField(
-                    state = inputState.principal,
-                    label = "PRINCIPAL AMOUNT (₹)",
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Principal (₹)",
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    visualTransformation = IndianCurrencyVisualTransformation
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    CustomTextField(
-                        inputState.interestRate,
-                        label = "Interest Rate (%)",
-                        modifier = Modifier.weight(1f),
-                        placeholder = "Rate (%)",
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    CustomTextField(
-                        state = inputState.term,
-                        label = "EMI Term (${
-                            if (inputState.isTermInYears) "Years"
-                            else "Months"
-                        })",
-                        placeholder = "Term",
-                        modifier = Modifier.weight(1f),
-                        trailingContent = {
-                            Text(
-                                text = if (inputState.isTermInYears) "Year(s)" else "Month(s)",
-                                modifier = Modifier.clickable {
-                                    inputState.isTermInYears = !inputState.isTermInYears
-                                }, color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelSmall,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        )
-                    )
-
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                var isVisible by remember { mutableStateOf(false) }
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .clickable {
-                            isVisible = !isVisible
-                        }
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Advanced settings",
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
-                            .weight(1f),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Icon(
-                        if (isVisible) Icons.Default.ExpandLess
-                        else Icons.Default.ExpandMore,
-                        "expand"
-                    )
-                }
-                AnimatedVisibility(isVisible) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .clickable { navigator.navigate(Route.EmiSettings) }
-                                .padding(vertical = 8.dp, horizontal = 8.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Fixed Charges",
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "add charges",
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary)
-                                    .size(24.dp)
-                                    .padding(4.dp),
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-
-                        fixedCharges.forEach {
-                            ResultRow(
-                                label = it.name,
-                                value = if (it.isPercentage) "${it.amount}%"
-                                else "₹${it.amount}",
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
-                        }
-
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Calculations",
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                ResultRow(label = "Monthly Payment", value = state.monthlyPayment)
-                ResultRow(label = "Total Payment", value = state.totalPaid)
-                ResultRow(label = "Total Interest", value = state.totalInterest)
-                if (fixedCharges.isNotEmpty()) {
-                    HorizontalDivider()
-                    ResultRow(
-                        label = "Effective Interest Rate",
-                        value = state.effectiveInterestRate
-                    )
-                    ResultRow(label = "Total Charges", value = state.totalCharges)
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                EMIPieChart(
-                    state = state,
-                    modifier = Modifier
-                )
-            }
-
-            if (AppState.isEmiSaveButtonEnabled) {
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text("Save", color = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
-
-        }
-    }
-}
-
+import com.brohit.truecalc.ui.theme.Spacing
+import com.brohit.truecalc.ui.tools.ToolRegistry
 
 @Composable
 fun EmiCalculatorScreen(
     navigator: AppNavigator,
     viewModel: EmiCalculatorViewModel = hiltViewModel()
 ) {
-    LoanCalculatorUI(
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val fixedCharges by viewModel.allFixedCharges.collectAsStateWithLifecycle()
+
+    ToolScreen(
+        tool = checkNotNull(ToolRegistry.forRoute(Route.Calculator.Emi())),
         navigator = navigator,
-        fixedCharges = viewModel.allFixedCharges
-            .collectAsStateWithLifecycle()
-            .value,
-        inputState = viewModel.inputState,
-        state = viewModel.state.collectAsStateWithLifecycle().value
+        onReset = viewModel::reset,
+        shareText = state.shareText,
+    ) {
+        EmiCalculatorContent(
+            inputState = viewModel.inputState,
+            state = state,
+            fixedCharges = fixedCharges,
+            onManageCharges = { navigator.navigate(Route.EmiSettings) },
+        )
+    }
+}
+
+/** Inputs, result and details of the EMI tool (everything inside the [ToolScreen] frame). */
+@Composable
+fun EmiCalculatorContent(
+    inputState: EmiCalculatorInputState,
+    state: EmiCalculatorState,
+    fixedCharges: List<FixedCharge>,
+    onManageCharges: () -> Unit,
+) {
+    val termUnit = if (inputState.isTermInYears) "years" else "months"
+
+    InputSection {
+        NumberField(
+            state = inputState.principal,
+            label = "Loan amount",
+            currency = true,
+            decimal = false,
+        )
+        NumberField(
+            state = inputState.interestRate,
+            label = "Interest rate (p.a.)",
+            suffix = "%",
+        )
+        NumberField(
+            state = inputState.term,
+            label = "Loan tenure",
+            suffix = termUnit,
+            decimal = false,
+            imeAction = ImeAction.Done,
+        )
+        UnitToggle(
+            options = listOf(true, false),
+            selected = inputState.isTermInYears,
+            onSelect = { inputState.isTermInYears = it },
+            label = { if (it) "Years" else "Months" },
+        )
+    }
+
+    MoreOptions(
+        title = "Fixed charges",
+        summary = if (fixedCharges.isEmpty()) "None added" else "${fixedCharges.size} added to the loan",
+    ) {
+        if (fixedCharges.isEmpty()) {
+            Text(
+                text = "Processing fees, insurance or stamp duty are added to the loan amount.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                fixedCharges.forEach { charge ->
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = charge.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            text = if (charge.isPercentage) "${charge.amount}%" else "₹${charge.amount}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+        }
+        TextButton(onClick = onManageCharges, modifier = Modifier.align(Alignment.End)) {
+            Icon(Icons.Rounded.Tune, contentDescription = null)
+            Text("Manage charges", modifier = Modifier.padding(start = Spacing.s))
+        }
+    }
+
+    ResultHero(
+        label = "Monthly EMI",
+        value = if (state.hasResult) state.monthlyPayment else null,
+        caption = if (state.hasResult) "for ${inputState.term.text} $termUnit" else null,
+        emptyText = "Enter loan amount, rate and tenure to see your EMI",
+    )
+
+    if (state.hasResult) {
+        val rows = buildList {
+            add(BreakdownRow("Total interest", state.totalInterest))
+            if (fixedCharges.isNotEmpty()) {
+                add(BreakdownRow("Total charges", state.totalCharges))
+                add(BreakdownRow("Effective interest rate", state.effectiveInterestRate))
+            }
+            add(BreakdownRow("Total payment", state.totalPaid, emphasized = true))
+        }
+        BreakdownSection(
+            rows = rows,
+            chart = { EMIPieChart(state = state, title = null) },
+        )
+    }
+
+    ToolInfo(
+        formula = "EMI = P × r × (1 + r)ⁿ ÷ ((1 + r)ⁿ − 1)",
+        notes = "P is the loan amount plus fixed charges, r the monthly rate (annual rate ÷ 12 ÷ 100) " +
+                "and n the tenure in months. The effective interest rate is the rate at which " +
+                "this EMI would repay only the amount you receive.",
     )
 }
 
-@Preview(showBackground = true)
+@ToolPreviews
 @Composable
-fun LoanCalculatorPreview() {
-    LoanCalculatorUI(
-        FakeAppNavigator,
-        listOf(
-            FixedCharge(0, "Stamp Duty", 200.0, false)
-        ),
-        inputState = EmiCalculatorInputState(),
-        state = EmiCalculatorState()
-    )
+private fun EmiCalculatorContentPreview() {
+    val inputState = EmiCalculatorInputState().apply {
+        principal.updateText("1000000")
+        interestRate.updateText("10")
+        term.updateText("20")
+    }
+    ToolPreviewColumn {
+        EmiCalculatorContent(
+            inputState = inputState,
+            state = EmiCalculatorState(mp = 9650.22, tp = 2316052.74, ti = 1316052.74, eir = 10.0),
+            fixedCharges = listOf(FixedCharge(0, "Stamp duty", 200.0, false)),
+            onManageCharges = {},
+        )
+    }
 }

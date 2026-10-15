@@ -31,7 +31,7 @@ fun InvestmentBreakdownChart(
     totalAmount: Double,
     interest: Double,
     principal: Double,
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier
 ) {
     val investedColor = MaterialTheme.colorScheme.primary
@@ -61,14 +61,16 @@ fun InvestmentBreakdownChart(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         PieChart(
             modifier = Modifier.size(200.dp),

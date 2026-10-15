@@ -55,6 +55,22 @@ fun categoryColors(category: ToolCategory): Pair<Color, Color> {
 }
 
 /**
+ * Strong accent and its "on" colour for a category (e.g. a filled icon circle), from the active
+ * theme. Returns `accent to onAccent`.
+ */
+@Composable
+@ReadOnlyComposable
+fun categoryAccentColors(category: ToolCategory): Pair<Color, Color> {
+    val scheme = MaterialTheme.colorScheme
+    return when (category.accent) {
+        CategoryAccent.Primary -> scheme.primary to scheme.onPrimary
+        CategoryAccent.Secondary -> scheme.secondary to scheme.onSecondary
+        CategoryAccent.Tertiary -> scheme.tertiary to scheme.onTertiary
+        CategoryAccent.Extended -> LocalExtendedColors.current.let { it.accent to it.onAccent }
+    }
+}
+
+/**
  * One tool in the app.
  *
  * @param id stable identifier; never change it once shipped (future favourites / assistant

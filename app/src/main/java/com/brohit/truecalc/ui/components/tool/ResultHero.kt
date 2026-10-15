@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,8 @@ import com.brohit.truecalc.ui.theme.numberDisplay
  *
  * @param label what the number is ("Monthly EMI")
  * @param caption a quiet line under the number ("for 240 months", "Normal weight")
+ * @param supporting optional content under the number and caption (e.g. a category chip);
+ *   shown only when there is a value.
  */
 @Suppress("DEPRECATION") // LocalClipboardManager: simple, synchronous and present in the BOM.
 @Composable
@@ -39,6 +42,7 @@ fun ResultHero(
     modifier: Modifier = Modifier,
     caption: String? = null,
     emptyText: String = "Enter the details above to see the result",
+    supporting: (@Composable () -> Unit)? = null,
 ) {
     val clipboard = LocalClipboardManager.current
     val haptics = LocalHapticFeedback.current
@@ -80,6 +84,9 @@ fun ResultHero(
                 Text(text = value.orEmpty(), style = MaterialTheme.typography.numberDisplay)
                 if (caption != null) {
                     Text(text = caption, style = MaterialTheme.typography.bodyMedium)
+                }
+                if (supporting != null) {
+                    Box(modifier = Modifier.padding(top = Spacing.s)) { supporting() }
                 }
             } else {
                 Text(text = emptyText, style = MaterialTheme.typography.bodyLarge)

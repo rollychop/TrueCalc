@@ -42,7 +42,7 @@ import com.brohit.truecalc.ui.theme.Spacing
 import kotlinx.coroutines.launch
 
 /**
- * Single choice from a list (replaces `ExpandableSelector` / `DropdownMenu`).
+ * Single choice from a list (replaces the old expandable selector / `DropdownMenu`).
  * Up to [chipThreshold] options render as a row of chips; more open a bottom sheet list from a
  * field-like row.
  */

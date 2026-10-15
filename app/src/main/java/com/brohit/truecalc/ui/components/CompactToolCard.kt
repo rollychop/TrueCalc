@@ -41,7 +41,8 @@ fun CompactToolCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isFavorite: Boolean = false,
-    onFavoriteClick: () -> Unit = {}
+    onFavoriteClick: () -> Unit = {},
+    iconContentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
     Card(
         modifier = modifier
@@ -86,7 +87,7 @@ fun CompactToolCard(
                         imageVector = icon,
                         contentDescription = null,
                         modifier = Modifier.size(26.dp),
-                        tint = Color.White
+                        tint = iconContentColor
                     )
                 }
                 

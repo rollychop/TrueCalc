@@ -105,37 +105,3 @@ internal val DarkExtendedOnAccent = Color(0xFF472A00)
 internal val DarkExtendedAccentContainer = Color(0xFF653E00)
 internal val DarkExtendedOnAccentContainer = Color(0xFFFFDDB8)
 // endregion
-
-// region Legacy palette
-// Still referenced by ui/utils/ToolUtils.kt (getToolColors). Phase 1b/2 removes those usages.
-private const val LEGACY_MSG = "Use MaterialTheme.colorScheme (or LocalExtendedColors) instead"
-
-@Deprecated(LEGACY_MSG)
-val PrimaryBlue = Color(0xFF2563EB)
-@Deprecated(LEGACY_MSG)
-val SuccessGreen = Color(0xFF22C55E)
-@Deprecated(LEGACY_MSG)
-val WarningAmber = Color(0xFFF59E0B)
-
-@Deprecated(LEGACY_MSG)
-val TonalBlue = Color(0xFFEFF6FF)
-@Deprecated(LEGACY_MSG)
-val TonalGreen = Color(0xFFF0FDF4)
-@Deprecated(LEGACY_MSG)
-val TonalAmber = Color(0xFFFFFBEB)
-@Deprecated(LEGACY_MSG)
-val TonalRed = Color(0xFFFEF2F2)
-@Deprecated(LEGACY_MSG)
-val TonalPurple = Color(0xFFF5F3FF)
-
-@Deprecated(LEGACY_MSG)
-val TonalBlueDark = Color(0xFF1E293B)
-@Deprecated(LEGACY_MSG)
-val TonalGreenDark = Color(0xFF064E3B)
-@Deprecated(LEGACY_MSG)
-val TonalAmberDark = Color(0xFF451A03)
-@Deprecated(LEGACY_MSG)
-val TonalRedDark = Color(0xFF450A0A)
-@Deprecated(LEGACY_MSG)
-val TonalPurpleDark = Color(0xFF2E1065)
-// endregion

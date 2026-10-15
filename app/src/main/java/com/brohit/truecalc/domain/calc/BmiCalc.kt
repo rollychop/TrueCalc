@@ -27,10 +27,25 @@ object BmiCalc {
         return calculate(w, h)
     }
 
+    /** Lower and upper bound of the normal BMI band used by [categoryOf]. */
+    const val HEALTHY_MIN = 18.5
+    const val HEALTHY_MAX = 24.9
+
+    /**
+     * Body weight (kg) range that keeps BMI within [HEALTHY_MIN]..[HEALTHY_MAX] for a height;
+     * null for a non-positive height.
+     */
+    fun healthyWeightRange(heightCm: Double): ClosedFloatingPointRange<Double>? {
+        if (heightCm <= 0.0) return null
+        val heightM = heightCm / 100.0
+        val squared = heightM * heightM
+        return (HEALTHY_MIN * squared)..(HEALTHY_MAX * squared)
+    }
+
     /** Thresholds as in the original app: <18.5, <24.9, <29.9, else obesity. */
     fun categoryOf(bmi: Double): BmiCategory = when {
-        bmi < 18.5 -> BmiCategory.Underweight
-        bmi < 24.9 -> BmiCategory.Normal
+        bmi < HEALTHY_MIN -> BmiCategory.Underweight
+        bmi < HEALTHY_MAX -> BmiCategory.Normal
         bmi < 29.9 -> BmiCategory.Overweight
         else -> BmiCategory.Obesity
     }

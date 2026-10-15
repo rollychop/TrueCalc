@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.brohit.truecalc.domain.HistoryManager
+import com.brohit.truecalc.domain.calc.BmiCalc
 import com.brohit.truecalc.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +41,9 @@ class BMICalculatorViewModel @Inject constructor(
             }
         }
     }
+
+    /** Clears the inputs back to their defaults. */
+    fun reset() = inputState.reset()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val stateFlow: StateFlow<BMIResultState> = run {
@@ -80,23 +84,17 @@ class BMICalculatorViewModel @Inject constructor(
     }
 
     private fun calculateBMI(weightText: String, heightText: String): BMIResultState {
-        val weight = weightText.toDoubleOrNull() ?: return BMIResultState()
-        val heightCm = heightText.toDoubleOrNull() ?: return BMIResultState()
-        if (heightCm == 0.0) return BMIResultState()
-
-        val heightM = heightCm / 100.0
-        val bmi = weight / (heightM * heightM)
-
-        val category = when {
-            bmi < 18.5 -> "Underweight"
-            bmi < 24.9 -> "Normal weight"
-            bmi < 29.9 -> "Overweight"
-            else -> "Obesity"
-        }
-
+        val result = BmiCalc.calculate(weightText, heightText) ?: return BMIResultState()
+        val bmiValue = "%.2f".format(result.bmi)
+        val range = heightText.toDoubleOrNull()?.let(BmiCalc::healthyWeightRange)
+        val rangeText = range?.let { "%.1f – %.1f kg".format(it.start, it.endInclusive) }
         return BMIResultState(
-            bmiValue = "%.2f".format(bmi),
-            category = category
+            bmiValue = bmiValue,
+            category = result.category.label,
+            bmiCategory = result.category,
+            healthyWeightRange = rangeText,
+            shareText = "My BMI is $bmiValue (${result.category.label}) at $weightText kg and " +
+                    "$heightText cm — via TrueCalc"
         )
     }
 }

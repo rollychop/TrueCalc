@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.brohit.truecalc.ui.utils.getCategoryIcon
@@ -38,7 +37,7 @@ fun CategoryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (bg, iconBg) = getToolColors(categoryName)
+    val (bg, iconBg, iconFg) = getToolColors(categoryName)
     val icon = getCategoryIcon(categoryName)
     val summary = getCategorySummary(categoryName)
 
@@ -68,7 +67,7 @@ fun CategoryCard(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = Color.White
+                    tint = iconFg
                 )
             }
             

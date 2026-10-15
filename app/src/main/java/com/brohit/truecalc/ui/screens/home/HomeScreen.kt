@@ -108,13 +108,14 @@ fun HomeScreen(
                 }
 
                 items(category.calculators) { calculator ->
-                    val (bg, iconBg) = getToolColors(calculator.name)
+                    val (bg, iconBg, iconFg) = getToolColors(calculator.name)
                     val isFav = favorites.any { it.route == Json.encodeToString(calculator.route) }
                     CompactToolCard(
                         name = calculator.name,
                         description = calculator.description,
                         icon = calculator.icon,
                         iconContainerColor = iconBg,
+                        iconContentColor = iconFg,
                         backgroundColor = bg,
                         isFavorite = isFav,
                         onClick = { 

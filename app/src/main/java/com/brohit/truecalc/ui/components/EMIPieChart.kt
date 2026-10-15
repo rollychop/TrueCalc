@@ -33,7 +33,8 @@ import ir.ehsannarmani.compose_charts.models.Pie
 @Composable
 fun EMIPieChart(
     state: EmiCalculatorState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: String? = "Breakdown of EMI",
 ) {
     val totalPaid = state.tp
     val totalInterest = state.ti
@@ -63,19 +64,18 @@ fun EMIPieChart(
     }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Breakdown of EMI",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         PieChart(
             modifier = Modifier.size(200.dp),
