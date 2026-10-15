@@ -1,6 +1,12 @@
 # UI Modernization & Tool Expansion Plan
 
-> Status: **planned**. Audit done Oct 2026 against `claude/app-context-jpi017`.
+> Status: **Phases 1–3 implemented** (Oct 2026): design system, shared tool components, all
+> existing tools migrated, 3-tab navigation with the new Home, and the everyday tools pack.
+> **Phase 4 (finance pack) is deferred.** Nothing has been built on Android yet: the work was
+> done in a cloud container without the SDK, with the pure-Kotlin calc layer (138 unit tests)
+> checked on the JVM and the Compose UI compile-checked against Compose Desktop with stubs.
+> First step on a dev machine: `./gradlew :app:assembleDebug :app:testDebugUnitTest`, then a
+> visual pass in light, dark and 200% font scale.
 > Goal: **feature-rich, minimalist, consistent.** Every tool should look and behave the same, so
 > adding tool #40 is as cheap as adding tool #9.
 
@@ -158,10 +164,10 @@ Picked for daily use in India, offline, minimal inputs. ★ = highest value.
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **1. Foundation** (1–2 wk) | Theme tokens and full schemes · shared tool components · `domain/calc` + tests · `ToolRegistry` · migrate the 6 existing tools · `KeyboardType.Decimal` | Audit items 1–10 closed, light and dark screenshots of all 6 tools match |
-| **2. Navigation & Home** (3–4 days) | 3-tab nav · new Home (pinned, recent, sections) · search by keywords · clean-up (item 12) | 5 tabs become 3, no dead code |
-| **3. Everyday pack** (1–2 wk) | Basic calculator, Percentage, Discount, GST, Split bill, Unit converter, Age, Date | 8 new tools, each with calc tests |
-| **4. Finance pack** (1–2 wk) | SIP/Lumpsum/Step-up, Loan prepayment/compare, CAGR, Inflation, PPF | |
+| **1. Foundation** (1–2 wk) | Theme tokens and full schemes · shared tool components · `domain/calc` + tests · `ToolRegistry` · migrate the 6 existing tools · `KeyboardType.Decimal` | ✅ Done. Audit items 1–10 closed; screenshots still to check on a device |
+| **2. Navigation & Home** (3–4 days) | 3-tab nav · new Home (pinned, recent, sections) · search by keywords · clean-up (item 12) | ✅ Done |
+| **3. Everyday pack** (1–2 wk) | Basic calculator, Percentage, Discount, GST, Split bill, Unit converter, Age, Date | ✅ Done. GST uses the GST 2.0 slabs (0/0.25/3/5/18/40) |
+| **4. Finance pack** (1–2 wk) | SIP/Lumpsum/Step-up, Loan prepayment/compare, CAGR, Inflation, PPF | ⏸ Deferred |
 | **5. Polish** | Share result as an image/text card, home-screen widgets (Glance) for the calculator and a pinned tool, a11y pass, baseline profiles | |
 | **6. Smart assistant** | See [`../smart-assistant/`](../smart-assistant/README.md). Every new tool adds an entry to `tools.json`. | |
 
