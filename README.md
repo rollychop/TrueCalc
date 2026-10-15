@@ -48,7 +48,11 @@ app/src/main/java/com/brohit/truecalc/
 1. Clone the repository.
 2. Open the project in Android Studio (Ladybug or later).
 3. Ensure you have a `google-services.json` file in the `app/` directory (for Firebase features).
-4. Build and run the `:app` module.
+4. Build and run the `:app` module (`playDebug` variant, or `githubDebug` for the GitHub build).
+
+## 📦 Releases
+
+Two flavors: `play` (`com.brohit.truecalc`, Google Play) and `github` (`com.brohit.truecalc.github`, GitHub Releases; it installs alongside the Play app). Push a `v*` tag to publish a signed GitHub APK. See [docs/RELEASING.md](docs/RELEASING.md).
 
 ## 📄 License
 

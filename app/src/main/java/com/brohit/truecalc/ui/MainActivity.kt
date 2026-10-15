@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalView
+import com.brohit.truecalc.BuildConfig
 import com.brohit.truecalc.ui.utils.showAllowNotificationSnackbar
 import com.brohit.truecalc.ui.utils.showSnackBar
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -86,6 +87,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!BuildConfig.IS_PLAY_BUILD) return
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 notifyUpdateDownloaded()
@@ -99,6 +101,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkForAppUpdate() {
+        // Play in-app updates only work for installs from Google Play.
+        if (!BuildConfig.IS_PLAY_BUILD) return
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
